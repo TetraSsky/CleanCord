@@ -15,7 +15,7 @@ CleanCord is a Vencord plugin that allows you to hide specific servers and folde
 
 ## Installation
 
-Command : git clone https://github.com/TetraSsky/CleanCord/tree/main
+Command : git clone https://github.com/TetraSsky/CleanCord/
 
 ## Usage
 
