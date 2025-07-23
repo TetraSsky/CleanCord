@@ -49,7 +49,7 @@ Enable the "Only hide in Streamer Mode" option to:
 ## FAQ
 
 **❓ : Will people know I've hidden servers/folders?**
-- No, this is purely a visual change on your client. Others can't see what you've hidden. Moreover, there is an option to completely hide the options when right-cliking!
+- No, this is purely a visual change on your client. Others can't see what you've hidden. Moreover, there is an option to completely hide the right-click options in the settings!
 
 **❓: Do hidden servers still show notifications?**
 - Unfortunately yes, hidden servers will still show notifications or mention counts. (⚠️ This issue is to be fixed in the future ⚠️)
