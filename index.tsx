@@ -29,6 +29,11 @@ const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         default: false,
         onChange: (newValue: boolean) => {
+            // Update the streamer mode listener when this setting changes
+            const plugin = Vencord.Plugins.plugins.CleanCord;
+            if (plugin) {
+                plugin.updateStreamerModeListener();
+            }
             updateCSSClasses();
         }
     },
@@ -462,7 +467,7 @@ function isStreamingMode(): boolean {
 // =============
 export default definePlugin({
     name: "CleanCord",
-    description: "Allows you to hide certain servers in your server list with right-click option",
+    description: "Allows you to hide certain servers/folders in your server list with right-click option",
     authors: [{ name: "Tetra_Sky", id: 406453997294190594n }],
     settings,
 
@@ -472,18 +477,12 @@ export default definePlugin({
     start() {
         loadHiddenData();
         this.streamerModeStore = Vencord.Webpack.findStore("StreamerModeStore") || Vencord.Webpack.getByProps("StreamerModeStore")?.StreamerModeStore;
-        if (settings.store.onlyHideInStream && this.streamerModeStore) {
-            this.streamerModeListener = () => updateCSSClasses();
-            this.streamerModeStore.addChangeListener(this.streamerModeListener);
-        }
+        this.updateStreamerModeListener();
         updateCSSClasses();
     },
 
     stop() {
-        if (this.streamerModeStore && this.streamerModeListener) {
-            this.streamerModeStore.removeChangeListener(this.streamerModeListener);
-            this.streamerModeListener = null;
-        }
+        this.removeStreamerModeListener();
 
         const styleElement = document.getElementById(CSS_ELEMENT_ID);
         if (styleElement) {
@@ -500,6 +499,21 @@ export default definePlugin({
         } catch (e) {
             logger.error("Error checking streamer mode:", e);
             return false;
+        }
+    },
+
+    updateStreamerModeListener() {
+        this.removeStreamerModeListener();
+        if (settings.store.onlyHideInStream && this.streamerModeStore) {
+            this.streamerModeListener = () => updateCSSClasses();
+            this.streamerModeStore.addChangeListener(this.streamerModeListener);
+        }
+    },
+
+    removeStreamerModeListener() {
+        if (this.streamerModeStore && this.streamerModeListener) {
+            this.streamerModeStore.removeChangeListener(this.streamerModeListener);
+            this.streamerModeListener = null;
         }
     },
 
