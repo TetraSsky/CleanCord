@@ -58,7 +58,7 @@ Enable the "Only hide in Streamer Mode" option to:
 - Yes, you can still access them through Quick Switcher (Ctrl+K), joining one of your friends' activity, etc... or by unhiding them in settings.
 
 **❓: Does this plugin breaks interaction with hidden servers?**
-- No, people from any hidden server can still interact with you and vise versa. The "icons" Discord displays in the server listing are only hidden with Customm CSS injection.
+- No, people from any hidden server can still interact with you and vise versa. The "icons" Discord displays in the server listing are only hidden with Custom CSS injection.
 
 **❓: Will my hidden servers stay hidden after restarting Discord?**
 - Yes, your preferences are saved between sessions!
