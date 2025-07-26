@@ -29,7 +29,6 @@ const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         default: false,
         onChange: (newValue: boolean) => {
-            // Update the streamer mode listener when this setting changes
             const plugin = Vencord.Plugins.plugins.CleanCord;
             if (plugin) {
                 plugin.updateStreamerModeListener();
@@ -534,20 +533,6 @@ export default definePlugin({
                 match: /(?<=getGuildsTree\(\)\{)(.+?return)(.+?)(?=;)/,
                 replace: (_, rest, returnValue) => `${rest} $self.filterGuildsTree(${returnValue})`
             }
-        },
-        {
-            find: '"getLastSelectedGuildId()"',
-            replacement: {
-                match: /function \i\(\i\)\{(?=.*getLastSelectedGuildId)/,
-                replace: "$&if($self.shouldHideFromQuickSwitcher(arguments[0]))return null;"
-            }
-        },
-        {
-            find: '"getMutableGuildStates(){"',
-            replacement: {
-                match: /(?<=getMutableGuildStates\(\)\{)(.+?return)(.+?)(?=;)/,
-                replace: (_, rest, returnValue) => `${rest} $self.filterMentionCounts(${returnValue})`
-            }
         }
     ],
 
@@ -559,7 +544,7 @@ export default definePlugin({
             const isHidden = guild ? isServerHidden(guild.id) : isFolderHidden(folderId);
             const label = guild
                 ? (isHidden ? "Unhide Server" : "Hide Server")
-                : (isHidden ? "Unhide Folder" : "Hide Folder");
+                : (isHidden ? "Unhide Folder" : "Hide Folder"); //We don't really need this btw, but its useful for debugging :)
 
             children.push(
                 <Menu.MenuSeparator />,
@@ -637,27 +622,6 @@ export default definePlugin({
             logger.error("Error filtering guilds tree:", e);
             return guildsTree;
         }
-    },
-
-    shouldHideFromQuickSwitcher(props: any): boolean {
-        if (settings.store.onlyHideInStream && !this.isStreamingMode()) {
-            return false;
-        }
-
-        try {
-            if (props?.record) {
-                if (props.type === "GUILD" && props.record.id) {
-                    return isServerHidden(props.record.id);
-                }
-                if (props.record.guild_id) {
-                    return isServerHidden(props.record.guild_id);
-                }
-            }
-        } catch (e) {
-            logger.error("Error checking quick switcher visibility:", e);
-        }
-
-        return false;
     },
 
     getHiddenServers(): string[] {
