@@ -17,7 +17,7 @@ CleanCord is a Vencord plugin that allows you to hide specific servers and folde
 **Prerequiries** : [git](https://git-scm.com/downloads) / [NodeJS](https://nodejs.org/en/download) / [pnpm](https://pnpm.io/installation)
 - Open a CMD window, you will need a clone of Vencord's Repository, command : **git clone https://github.com/Vendicated/Vencord**
 - Navigate to the path where you cloned the repository (Ex : **cd C:\Documents\Vencord**) then type : **pnpm install --frozen-lockfile**
-- Inside the 'Vencord' Folder, navigate to ** .\src\ ** and create a new folder called "**userplugins**"
+- Inside the 'Vencord' Folder, navigate to ".\src\" and create a new folder called "**userplugins**"
 - Then inside that new 'userplugin' Folder, navigate to it with your (hopefully, still opened) CMD window (Ex : cd .\src\userplugins\) and type, command : **git clone https://github.com/TetraSsky/CleanCord/**
 - Then command : **pnpm build**
 - And lastly command : **pnpm inject** (Select your Discord path (Stable))
