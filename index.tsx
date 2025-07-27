@@ -1,8 +1,15 @@
+/*
+* Vencord, a Discord client mod
+* Copyright (c) 2025 Vendicated and contributors*
+* SPDX-License-Identifier: GPL-3.0-or-later
+*/
+
 import { definePluginSettings } from "@api/Settings";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import { Menu } from "@webpack/common";
 import { React } from "@webpack/common";
+import { HiddenItemsList } from "./hiddenItemsList";
 
 interface HiddenData {
     servers: string[];
@@ -48,140 +55,30 @@ const settings = definePluginSettings({
                 setHiddenServers([...hiddenData.servers]);
             }, []);
 
-            const toggleServerVisibility = React.useCallback((serverId: string) => {
-                const newHiddenServers = hiddenServers.includes(serverId)
+            const toggle = React.useCallback((serverId: string) => {
+                const newItems = hiddenServers.includes(serverId)
                     ? hiddenServers.filter(id => id !== serverId)
                     : [...hiddenServers, serverId];
-
-                setHiddenServers(newHiddenServers);
-                hiddenData.servers = newHiddenServers;
+                setHiddenServers(newItems);
+                hiddenData.servers = newItems;
                 saveHiddenData();
                 updateCSSClasses();
             }, [hiddenServers]);
 
-            const clearAllHidden = React.useCallback(() => {
+            const clearAll = React.useCallback(() => {
                 setHiddenServers([]);
                 hiddenData.servers = [];
                 saveHiddenData();
                 updateCSSClasses();
             }, []);
 
-            const isStreamMode = Vencord.Plugins.plugins.CleanCord?.isStreamingMode() ?? false;
-            const onlyHideInStreamEnabled = settings.store.onlyHideInStream;
-
-            const containerStyle = React.useMemo(() => ({
-                padding: "10px",
-                backgroundColor: "var(--background-secondary)",
-                borderRadius: "8px",
-                marginTop: "8px"
-            }), []);
-
-            const headerStyle = React.useMemo(() => ({
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "10px"
-            }), []);
-
-            const buttonStyle = React.useMemo(() => ({
-                padding: "4px 8px",
-                backgroundColor: "var(--button-danger-background)",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-            }), []);
-
-            const statusStyle = React.useMemo(() => ({
-                padding: "8px",
-                backgroundColor: isStreamMode ? "var(--status-positive)" : "var(--status-warning)",
-                borderRadius: "4px",
-                marginBottom: "10px",
-                color: "var(--white-500)",
-                textAlign: "center" as const
-            }), [isStreamMode]);
-
-            return React.createElement("div", {
-                style: containerStyle
-            }, [
-                React.createElement("div", {
-                    key: "header",
-                    style: headerStyle
-                }, [
-                    React.createElement("h3", {
-                        key: "title",
-                        style: { margin: 0, color: "var(--header-primary)" }
-                    }, "Hidden Servers"),
-                    React.createElement("button", {
-                        key: "clear-button",
-                        onClick: clearAllHidden,
-                        style: buttonStyle
-                    }, "Unhide All")
-                ]),
-
-                onlyHideInStreamEnabled ? React.createElement("div", {
-                    key: "stream-status",
-                    style: statusStyle
-                }, isStreamMode
-                    ? "🔴 Streamer Mode ON - Servers are hidden"
-                    : "⚠️ Streamer Mode OFF - Servers are visible despite being in list"
-                ) : null,
-                React.createElement("div", {
-                    key: "server-list",
-                    style: { maxHeight: "300px", overflowY: "auto" }
-                }, hiddenServers.length === 0
-                    ? React.createElement("div", {
-                        style: {
-                            textAlign: "center",
-                            color: "var(--text-muted)",
-                            padding: "20px"
-                        }
-                    }, "No hidden servers. Right-click on a server to hide it.")
-                    : hiddenServers.map(serverId =>
-                        React.createElement("div", {
-                            key: serverId,
-                            style: {
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                padding: "8px 0",
-                                borderBottom: "1px solid var(--background-modifier-accent)",
-                                opacity: onlyHideInStreamEnabled && !isStreamMode ? 0.5 : 1
-                            }
-                        }, [
-                            React.createElement("span", {
-                                key: "server-id",
-                                style: {
-                                    color: "var(--text-danger)",
-                                }
-                            }, `Server ID: ${serverId}`),
-                            React.createElement("label", {
-                                key: "toggle-wrapper",
-                                style: {
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "8px",
-                                    cursor: "pointer"
-                                }
-                            }, [
-                                React.createElement("span", {
-                                    key: "toggle-label",
-                                    style: {
-                                        color: "var(--text-muted)"
-                                    }
-                                }, "Hidden"),
-                                React.createElement("input", {
-                                    key: "toggle-input",
-                                    type: "checkbox",
-                                    checked: true,
-                                    onChange: () => toggleServerVisibility(serverId),
-                                    style: { cursor: "pointer" }
-                                })
-                            ])
-                        ])
-                    )
-                )
-            ]);
+        return React.createElement(HiddenItemsList, {
+            type: "server",
+            items: hiddenServers,
+            onToggle: toggle,
+            onClearAll: clearAll,
+            onlyHideInStreamEnabled: settings.store.onlyHideInStream
+        });
         }
     },
 
@@ -197,140 +94,30 @@ const settings = definePluginSettings({
                 setHiddenFolders([...hiddenData.folders]);
             }, []);
 
-            const toggleFolderVisibility = React.useCallback((folderId: string) => {
-                const newHiddenFolders = hiddenFolders.includes(folderId)
+            const toggle = React.useCallback((folderId: string) => {
+                const newItems = hiddenFolders.includes(folderId)
                     ? hiddenFolders.filter(id => id !== folderId)
                     : [...hiddenFolders, folderId];
-
-                setHiddenFolders(newHiddenFolders);
-                hiddenData.folders = newHiddenFolders;
+                setHiddenFolders(newItems);
+                hiddenData.folders = newItems;
                 saveHiddenData();
                 updateCSSClasses();
             }, [hiddenFolders]);
 
-            const clearAllHidden = React.useCallback(() => {
+            const clearAll = React.useCallback(() => {
                 setHiddenFolders([]);
                 hiddenData.folders = [];
                 saveHiddenData();
                 updateCSSClasses();
             }, []);
 
-            const isStreamMode = Vencord.Plugins.plugins.CleanCord?.isStreamingMode() ?? false;
-            const onlyHideInStreamEnabled = settings.store.onlyHideInStream;
-
-            const containerStyle = React.useMemo(() => ({
-                padding: "10px",
-                backgroundColor: "var(--background-secondary)",
-                borderRadius: "8px",
-                marginTop: "8px"
-            }), []);
-
-            const headerStyle = React.useMemo(() => ({
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "10px"
-            }), []);
-
-            const buttonStyle = React.useMemo(() => ({
-                padding: "4px 8px",
-                backgroundColor: "var(--button-danger-background)",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-            }), []);
-
-            const statusStyle = React.useMemo(() => ({
-                padding: "8px",
-                backgroundColor: isStreamMode ? "var(--status-positive)" : "var(--status-warning)",
-                borderRadius: "4px",
-                marginBottom: "10px",
-                color: "var(--white-500)",
-                textAlign: "center" as const
-            }), [isStreamMode]);
-
-            return React.createElement("div", {
-                style: containerStyle
-            }, [
-                React.createElement("div", {
-                    key: "header",
-                    style: headerStyle
-                }, [
-                    React.createElement("h3", {
-                        key: "title",
-                        style: { margin: 0, color: "var(--header-primary)" }
-                    }, "Hidden Folders"),
-                    React.createElement("button", {
-                        key: "clear-button",
-                        onClick: clearAllHidden,
-                        style: buttonStyle
-                    }, "Unhide All")
-                ]),
-
-                onlyHideInStreamEnabled ? React.createElement("div", {
-                    key: "stream-status",
-                    style: statusStyle
-                }, isStreamMode
-                    ? "🔴 Streamer Mode ON - Folders are hidden"
-                    : "⚠️ Streamer Mode OFF - Folders are visible despite being in list"
-                ) : null,
-                React.createElement("div", {
-                    key: "folder-list",
-                    style: { maxHeight: "300px", overflowY: "auto" }
-                }, hiddenFolders.length === 0
-                    ? React.createElement("div", {
-                        style: {
-                            textAlign: "center",
-                            color: "var(--text-muted)",
-                            padding: "20px"
-                        }
-                    }, "No hidden folders. Right-click on a folder to hide it.")
-                    : hiddenFolders.map(folderId =>
-                        React.createElement("div", {
-                            key: folderId,
-                            style: {
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                padding: "8px 0",
-                                borderBottom: "1px solid var(--background-modifier-accent)",
-                                opacity: onlyHideInStreamEnabled && !isStreamMode ? 0.5 : 1
-                            }
-                        }, [
-                            React.createElement("span", {
-                                key: "folder-id",
-                                style: {
-                                    color: "var(--text-danger)",
-                                }
-                            }, `Folder ID: ${folderId}`),
-                            React.createElement("label", {
-                                key: "toggle-wrapper",
-                                style: {
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "8px",
-                                    cursor: "pointer"
-                                }
-                            }, [
-                                React.createElement("span", {
-                                    key: "toggle-label",
-                                    style: {
-                                        color: "var(--text-muted)"
-                                    }
-                                }, "Hidden"),
-                                React.createElement("input", {
-                                    key: "toggle-input",
-                                    type: "checkbox",
-                                    checked: true,
-                                    onChange: () => toggleFolderVisibility(folderId),
-                                    style: { cursor: "pointer" }
-                                })
-                            ])
-                        ])
-                    )
-                )
-            ]);
+            return React.createElement(HiddenItemsList, {
+                type: "folder",
+                items: hiddenFolders,
+                onToggle: toggle,
+                onClearAll: clearAll,
+                onlyHideInStreamEnabled: settings.store.onlyHideInStream
+            });
         }
     }
 });
@@ -496,7 +283,7 @@ export default definePlugin({
             const isHidden = guild ? hiddenData.servers.includes(guild.id) : hiddenData.folders.includes(folderId);
             const label = guild
                 ? (isHidden ? "Unhide Server" : "Hide Server")
-                : (isHidden ? "Unhide Folder" : "Hide Folder"); //We don't really need this btw, but its useful for debugging :)
+                : (isHidden ? "Unhide Folder" : "Hide Folder"); //We don't really need this btw, but its useful for debugging :) | Also in the case "onlyHideInStream" = true, this behavior needs to stay
 
             children.push(
                 <Menu.MenuSeparator />,
@@ -516,9 +303,9 @@ export default definePlugin({
             children.push(
                 <Menu.MenuItem
                     id="clean-cord-manage"
-                    label="Manage Hidden Servers"
+                    label="Manage Hidden Folders & Servers"
                     action={() => {
-                        Vencord.Webpack.Common.SettingsRouter.open("VencordPlugins");
+                        Vencord.Webpack.Common.SettingsRouter.open("VencordPlugins"); // Opens the Vencord settings panel, need to find a way to redirect to CleanCord's settings (Not implemented yet)
                     }}
                 />
             );
