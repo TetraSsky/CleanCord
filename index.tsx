@@ -488,16 +488,6 @@ export default definePlugin({
         }
     },
 
-    patches: [
-        {
-            find: '"getGuildsTree(){',
-            replacement: {
-                match: /(?<=getGuildsTree\(\)\{)(.+?return)(.+?)(?=;)/,
-                replace: (_, rest, returnValue) => `${rest} $self.filterGuildsTree(${returnValue})`
-            }
-        }
-    ],
-
     contextMenus: {
         "guild-context"(children, { guild, folderId }) {
             if (!settings.store.showOptions) return;
