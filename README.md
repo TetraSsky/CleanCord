@@ -90,5 +90,9 @@ If you encounter any issues or have feature requests (This will entirely depend 
 
 This plugin is built for and requires [Vencord](https://github.com/Vendicated/Vencord), a Discord client mod! Big thanks to them ❤️❤️❤️!
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=TetraSsky/CleanCord&type=Date)](https://www.star-history.com/#TetraSsky/CleanCord&Date)
+
 ## License
 MIT License - See [LICENSE](LICENSE) for details.
