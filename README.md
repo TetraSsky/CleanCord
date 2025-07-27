@@ -72,12 +72,12 @@ Enable the "Only hide in Streamer Mode" option to:
 
 <table>
   <tr>
-    <td width="50%"><img src="https://github.com/user-attachments/assets/a3782cac-86fd-4809-a675-daae91b37eb4" alt="Context menu" style="width:100%"></td>
-    <td width="50%"><img src="https://github.com/user-attachments/assets/ba7cf1bf-9682-4bc3-9698-ee6790091d81" alt="Settings panel" style="width:100%"></td>
+    <td width="50%"><img src="https://github.com/user-attachments/assets/dc2c4882-fadf-451d-b6f1-2fe76af33a2f" alt="Context menu" style="width:100%"></td>
+    <td width="50%"><img src="https://github.com/user-attachments/assets/b0eee9d8-8855-4ab5-a39c-1d0e9509d188" alt="Settings panel" style="width:100%"></td>
   </tr>
   <tr>
-    <td width="50%"><img src="https://github.com/user-attachments/assets/ce1e7755-4a77-461d-ae00-eaa152550288" alt="Streamer mode example" style="width:100%"></td>
-    <td width="50%"><img src="https://github.com/user-attachments/assets/c59227e6-70ba-424e-a50b-fabb0b71232a" alt="Streamer mode example 2" style="width:100%"></td>
+    <td width="50%"><img src="https://github.com/user-attachments/assets/ad205258-c8b9-4285-9037-01748aca20d7" alt="Streamer mode example" style="width:100%"></td>
+    <td width="50%"><img src="https://github.com/user-attachments/assets/48fe619a-ca14-4643-af3c-7d1156daafdc" alt="Streamer mode example 2" style="width:100%"></td>
   </tr>
 </table>
 
