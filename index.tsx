@@ -533,56 +533,5 @@ export default definePlugin({
                 />
             );
         }
-    },
-
-    filterGuildsTree(guildsTree: any) {
-        if (!guildsTree?.root?.children) return guildsTree;
-
-        if (settings.store.onlyHideInStream && !this.isStreamingMode()) {
-            return guildsTree;
-        }
-
-        try {
-            const filteredTree = { ...guildsTree };
-            filteredTree.root = { ...guildsTree.root };
-
-            filteredTree.root.children = guildsTree.root.children
-                .filter((node: any) => {
-                    if (node.type === "folder") {
-                        if (hiddenData.folders.includes(node.id)) {
-                            return false;
-                        }
-
-                        if (node.children) {
-                            const filteredChildren = node.children.filter((guild: any) =>
-                                !hiddenData.servers.includes(guild.id)
-                            );
-                            return filteredChildren.length > 0;
-                        }
-
-                        return true;
-                    } else if (node.type === "guild") {
-                        return !hiddenData.servers.includes(node.id);
-                    }
-
-                    return true;
-                })
-                .map((node: any) => {
-                    if (node.type === "folder" && node.children) {
-                        return {
-                            ...node,
-                            children: node.children.filter((guild: any) =>
-                                !hiddenData.servers.includes(guild.id)
-                            )
-                        };
-                    }
-                    return node;
-                });
-
-            return filteredTree;
-        } catch (e) {
-            logger.error("Error filtering guilds tree:", e);
-            return guildsTree;
-        }
     }
 });
