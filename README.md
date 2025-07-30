@@ -59,7 +59,7 @@ Enable the "Only hide in Streamer Mode" option to:
 
 **❓: Do hidden servers still show notifications?**
 - No, hidden servers won't display unread messages, mention counts or play notifications sounds.  
-(Only when <ins>Suppresion Mode</ins> is set to "**Silent**" & (Preferably) **Auto Clear Mentions** is <ins>enabled</ins>)
+(Only when **Suppresion Mode** is set to <ins>Silent</ins> & (Preferably) **Auto Clear Mentions** is <ins>enabled</ins>)
 
 **❓: Can I still access hidden servers?**
 - Yes, you can still access them through Quick Switcher (Ctrl+K), joining one of your friends' activity, etc... or by unhiding them in settings.
