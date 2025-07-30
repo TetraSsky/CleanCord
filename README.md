@@ -77,7 +77,7 @@ Auto Clear Mentions | Automatically clear all unread badges from hidden servers/
 
 <table>
   <tr>
-    <td width="50%"><img src="https://github.com/user-attachments/assets/852ba7ea-c221-49e1-a30a-60e3f6024c92" alt="Context menu" style="width:100%"></td>
+    <td width="50%"><img src="https://github.com/user-attachments/assets/b731f5f3-1d9b-4920-b769-633f0205efc0" alt="Context menu" style="width:100%"></td>
     <td width="50%"><img src="https://github.com/user-attachments/assets/95dba3e9-4018-43b9-9afa-509037c9653c" alt="Settings panel" style="width:100%"></td>
   </tr>
   <tr>
