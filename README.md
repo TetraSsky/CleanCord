@@ -15,12 +15,13 @@ CleanCord is a Vencord plugin that allows you to hide specific servers and folde
 
 ## Installation
 **Prerequiries** : [git](https://git-scm.com/downloads) / [NodeJS](https://nodejs.org/en/download) / [pnpm](https://pnpm.io/installation)
-- Open a CMD window, you will need a clone of Vencord's Repository, command : **git clone https://github.com/Vendicated/Vencord**
-- Navigate to the path where you cloned the repository (Ex : **cd C:\Documents\Vencord**) then type : **pnpm install --frozen-lockfile**
-- Inside the 'Vencord' Folder, navigate to ".\src\" and create a new folder called "**userplugins**"
-- Then inside that new 'userplugin' Folder, navigate to it with your (hopefully, still opened) CMD window (Ex : cd .\src\userplugins\) and type, command : **git clone https://github.com/TetraSsky/CleanCord/**
-- Then command : **pnpm build**
-- And lastly command : **pnpm inject** (Select your Discord path (Stable))
+- Open a CMD window, you will need a clone of Vencord's Repository, command : `git clone https://github.com/Vendicated/Vencord`
+- Navigate to the path where you cloned the repository (Ex : "`cd C:\Documents\Vencord`") then type : `pnpm install --frozen-lockfile`
+- Inside the 'Vencord' Folder, navigate to "`.\src\`" and create a new folder called "**userplugins**"
+- Then inside that new 'userplugin' Folder, navigate to it with your (hopefully, still opened) CMD window (Ex : "`cd .\src\userplugins\`") and type, command : `git clone https://github.com/TetraSsky/CleanCord/`
+- Then command : `pnpm build`
+- And lastly command : `pnpm inject`
+> (Select your Discord path (Stable / Canary))
 
 ## Usage
 
@@ -57,7 +58,8 @@ Enable the "Only hide in Streamer Mode" option to:
 - No, this is purely a visual change on your client. Others can't see what you've hidden. Moreover, there is an option to completely hide the right-click options in the settings!
 
 **❓: Do hidden servers still show notifications?**
-- Unfortunately yes, hidden servers will still show notifications or mention counts. (⚠️ This issue is to be fixed in the future ⚠️)
+- *Yes, hidden servers won't display unread messages, mention counts or play notifications sounds.
+> *(Only when : "Suppress Mentions & Clear - Automatically reads mentions on reload" is selected)
 
 **❓: Can I still access hidden servers?**
 - Yes, you can still access them through Quick Switcher (Ctrl+K), joining one of your friends' activity, etc... or by unhiding them in settings.
@@ -72,12 +74,12 @@ Enable the "Only hide in Streamer Mode" option to:
 
 <table>
   <tr>
-    <td width="50%"><img src="https://github.com/user-attachments/assets/dc2c4882-fadf-451d-b6f1-2fe76af33a2f" alt="Context menu" style="width:100%"></td>
-    <td width="50%"><img src="https://github.com/user-attachments/assets/b0eee9d8-8855-4ab5-a39c-1d0e9509d188" alt="Settings panel" style="width:100%"></td>
+    <td width="50%"><img src="https://github.com/user-attachments/assets/852ba7ea-c221-49e1-a30a-60e3f6024c92" alt="Context menu" style="width:100%"></td>
+    <td width="50%"><img src="https://github.com/user-attachments/assets/95dba3e9-4018-43b9-9afa-509037c9653c" alt="Settings panel" style="width:100%"></td>
   </tr>
   <tr>
-    <td width="50%"><img src="https://github.com/user-attachments/assets/ad205258-c8b9-4285-9037-01748aca20d7" alt="Streamer mode example" style="width:100%"></td>
-    <td width="50%"><img src="https://github.com/user-attachments/assets/48fe619a-ca14-4643-af3c-7d1156daafdc" alt="Streamer mode example 2" style="width:100%"></td>
+    <td width="50%"><img src="https://github.com/user-attachments/assets/a5f9083f-ae9f-4715-b151-e52f1d8a6441" alt="Streamer mode example" style="width:100%"></td>
+    <td width="50%"><img src="https://github.com/user-attachments/assets/a6b29511-285c-4972-a574-5968f66fb7ef" alt="Streamer mode example 2" style="width:100%"></td>
   </tr>
 </table>
 

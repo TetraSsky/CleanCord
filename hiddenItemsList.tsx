@@ -24,42 +24,43 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
     const isStreamMode = Vencord.Plugins.plugins.CleanCord?.isStreamingMode() ?? false;
 
     const containerStyle = React.useMemo(() => ({
-        padding: "10px",
         backgroundColor: "var(--background-secondary)",
-        borderRadius: "8px",
-        marginTop: "8px"
     }), []);
 
     const headerStyle = React.useMemo(() => ({
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        marginBottom: "10px"
+        marginBottom: "10px",
+        fontSize: "16px",
+        fontWeight: "600"
     }), []);
 
     const buttonStyle = React.useMemo(() => ({
         padding: "4px 8px",
         backgroundColor: "var(--button-danger-background)",
         color: "white",
-        border: "none",
         borderRadius: "4px",
         cursor: "pointer",
+        fontSize: "16px",
+        fontWeight: "600"
     }), []);
 
     const statusStyle = React.useMemo(() => ({
         padding: "8px",
         backgroundColor: isStreamMode ? "var(--status-positive)" : "var(--status-warning)",
         borderRadius: "4px",
-        marginBottom: "10px",
         color: "var(--white-500)",
-        textAlign: "center" as const
+        textAlign: "center" as const,
+        fontSize: "16px",
+        fontWeight: "600"
     }), [isStreamMode]);
 
     return React.createElement("div", { style: containerStyle }, [
         React.createElement("div", { key: "header", style: headerStyle }, [
             React.createElement("h3", {
                 key: "title",
-                style: { margin: 0, color: "var(--header-primary)" }
+                style: { color: "var(--header-primary)", fontSize: "16px", fontWeight: "600" }
             }, `Hidden ${type === "server" ? "Servers" : "Folders"}`),
             React.createElement("button", {
                 key: "clear-button",
@@ -84,18 +85,17 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
                 style: {
                     textAlign: "center",
                     color: "var(--text-muted)",
-                    padding: "20px"
+                    padding: "16px"
                 }
-            }, `No hidden ${type === "server" ? "servers" : "folders"}. Right-click to hide.`)
+            }, `No hidden ${type === "server" ? "servers" : "folders"}.`)
             : items.map(id =>
                 React.createElement("div", {
                     key: id,
                     style: {
+                        padding : "8px",
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
-                        padding: "8px 0",
-                        borderBottom: "1px solid var(--background-modifier-accent)",
                         opacity: onlyHideInStreamEnabled && !isStreamMode ? 0.5 : 1
                     }
                 }, [
@@ -114,7 +114,7 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
                     }, [
                         React.createElement("span", {
                             key: "toggle-label",
-                            style: { color: "var(--text-muted)" }
+                            style: { color: "var(--text-muted)", fontSize: "16px" }
                         }, "Hidden"),
                         React.createElement("input", {
                             key: "toggle-input",
