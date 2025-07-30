@@ -601,7 +601,8 @@ function updateCSSClasses() {
     hiddenData.folders.forEach(folderId => {
         cssRules.push(
             `html[data-clean-cord-enabled="true"] .listItem__650eb:has([data-list-item-id*="${folderId}"]) { display: none !important; }`,
-            `html[data-clean-cord-enabled="true"] [data-list-item-id*="${folderId}"] { display: none !important; }`
+            `html[data-clean-cord-enabled="true"] [data-list-item-id*="${folderId}"] { display: none !important; }`,
+            `html[data-clean-cord-enabled="true"] .folderGroup__48112:has([data-list-item-id*="${folderId}"]) { display: none !important; }`
         );
     });
 
