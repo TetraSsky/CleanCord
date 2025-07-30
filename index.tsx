@@ -375,7 +375,7 @@ function clearHiddenMentions() {
         return;
     }
 
-    if (settings.store.onlyHideInStream && Vencord.Plugins.plugins.CleanCord?.isStreamingMode()) {
+    if (!(settings.store.onlyHideInStream && !Vencord.Plugins.plugins.CleanCord?.isStreamingMode())) {
         try {
             const GuildStore = Vencord.Webpack.findStore("GuildStore") || Vencord.Webpack.findByProps("getGuild", "getGuilds");
             const ChannelStore = Vencord.Webpack.findStore("ChannelStore") || Vencord.Webpack.findByProps("getChannel", "getChannels");
