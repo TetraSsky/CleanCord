@@ -58,8 +58,8 @@ Enable the "Only hide in Streamer Mode" option to:
 - No, this is purely a visual change on your client. Others can't see what you've hidden. Moreover, there is an option to completely hide the right-click options in the settings!
 
 **❓: Do hidden servers still show notifications?**
-- *Yes, hidden servers won't display unread messages, mention counts or play notifications sounds.
-> *(Only when : "Suppress Mentions & Clear - Automatically reads mentions on reload" is selected)
+- *No, hidden servers won't display unread messages, mention counts or play notifications sounds.  
+*(Only when : "Suppress Mentions & Clear - Automatically reads mentions on reload" is selected)
 
 **❓: Can I still access hidden servers?**
 - Yes, you can still access them through Quick Switcher (Ctrl+K), joining one of your friends' activity, etc... or by unhiding them in settings.
