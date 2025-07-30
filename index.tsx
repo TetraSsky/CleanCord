@@ -596,7 +596,10 @@ function updateCSSClasses() {
     hiddenData.servers.forEach(serverId => {
         cssRules.push(
             `html[data-clean-cord-enabled="true"] .listItem__650eb:has([data-list-item-id="guildsnav___${serverId}"]) { display: none !important; }`,
-            `html[data-clean-cord-enabled="true"] [data-list-item-id="guildsnav___${serverId}"] { display: none !important; }`
+            `html[data-clean-cord-enabled="true"] [data-list-item-id="guildsnav___${serverId}"] { display: none !important; }`,
+            `html[data-clean-cord-enabled="true"] .folderPreviewGuildIcon__48112[style*="${serverId}"] { display: none !important; }`,
+            `html[data-clean-cord-enabled="true"] .folderPreviewGuildIcon__48112[style*="icons/${serverId}/"] { display: none !important; }`,
+            `html[data-clean-cord-enabled="true"] .folderGuildsList__48112:has([data-list-item-id="guildsnav___${serverId}"]) { height: calc(100% - 48px) !important; }`
         );
     });
 
