@@ -42,6 +42,7 @@ CleanCord is a Vencord plugin that allows you to hide specific servers and folde
 Enable the "Only hide in Streamer Mode" option to:
 - Keep servers/folders visible normally
 - Automatically hide them when Streamer Mode is active
+- Automatically handle notifications & mentions when Streamr Mode is active
 
 ## Options
 
@@ -49,6 +50,8 @@ Enable the "Only hide in Streamer Mode" option to:
 |--------|-------------|---------|
 | Show Options | Displays the hide/unhide options in right-click menus | Enabled |
 | Only Hide in Streamer Mode | Servers/folders will only be hidden when Streamer Mode is active | Disabled |
+| Suppression Mode | Default - Keep initial Discord behaviour for notifications" / Silent - Block all notifications in real-time from hidden servers/folders (Resets on startup) | Silent |
+Auto Clear Mentions | Automatically clear all unread badges from hidden servers/folders on startup (Recommended to use with 'Silent' mode) | Disabled |
 | Hidden Servers | Manage your list of hidden servers | - |
 | Hidden Folders | Manage your list of hidden folders | - |
 
