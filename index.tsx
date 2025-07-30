@@ -7,9 +7,11 @@
 import { definePluginSettings } from "@api/Settings";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
-import { Menu, FluxDispatcher } from "@webpack/common";
+import { FluxDispatcher } from "@webpack/common";
 import { React } from "@webpack/common";
+
 import { HiddenItemsList } from "./hiddenItemsList";
+import { CleanCordContext } from "./contextMenuComponents";
 
 interface HiddenData {
     servers: string[];
@@ -725,40 +727,19 @@ export default definePlugin({
 
     contextMenus: {
         "guild-context"(children, { guild, folderId }) {
-            if (!settings.store.showOptions) return;
-            if (!guild && !folderId) return;
+            const contextComponent = CleanCordContext({
+                guild,
+                folderId,
+                hiddenData,
+                settings,
+                toggleServer,
+                toggleFolder
+            });
 
-            const isHidden = guild ? hiddenData.servers.includes(guild.id) : hiddenData.folders.includes(folderId);
-            const label = guild
-                ? (isHidden ? "Unhide Server" : "Hide Server")
-                : (isHidden ? "Unhide Folder" : "Hide Folder"); //We don't really need this btw, but its useful for debugging :) | Also in the case "onlyHideInStream" = true, this behavior needs to stay
-
-            children.push(
-                <Menu.MenuSeparator />,
-                <Menu.MenuItem
-                    id="clean-cord-menu"
-                    label="CleanCord"
-                >
-                    <Menu.MenuItem
-                        id="clean-cord-toggle"
-                        label={label}
-                        action={() => {
-                            if (guild) {
-                                toggleServer(guild.id);
-                            } else if (folderId) {
-                                toggleFolder(folderId);
-                            }
-                        }}
-                    />
-                    <Menu.MenuItem
-                        id="clean-cord-manage"
-                        label="Manage Hidden Servers & Folders"
-                        action={() => {
-                            Vencord.Webpack.Common.SettingsRouter.open("VencordPlugins"); // Opens the Vencord settings panel, need to find a way to redirect to CleanCord's settings (Not implemented yet)
-                        }}
-                    />
-                </Menu.MenuItem>
-            );
+            if (contextComponent) {
+                children.push(contextComponent);
+            }
         }
     }
 });
+export { toggleServer, toggleFolder, hiddenData, settings };
