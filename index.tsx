@@ -726,20 +726,6 @@ export default definePlugin({
     },
 
     contextMenus: {
-        "guild-context"(children, { guild, folderId }) {
-            const contextComponent = CleanCordContext({
-                guild,
-                folderId,
-                hiddenData,
-                settings,
-                toggleServer,
-                toggleFolder
-            });
-
-            if (contextComponent) {
-                children.push(contextComponent);
-            }
-        }
+        "guild-context": CleanCordContext(() => hiddenData, settings, toggleServer, toggleFolder)
     }
 });
-export { toggleServer, toggleFolder, hiddenData, settings };

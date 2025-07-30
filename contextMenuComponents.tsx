@@ -9,6 +9,7 @@
  */
 
 import { Menu } from "@webpack/common";
+import { React } from "@webpack/common";
 
 const iconStyle: React.CSSProperties = {
     width: "20px",
@@ -35,61 +36,55 @@ const SettingsIcon = () => (
     </svg>
 );
 
-interface CleanCordContextProps {
-    guild?: { id: string; name?: string };
-    folderId?: string;
-    hiddenData: { servers: string[]; folders: string[] };
-    settings: any;
-    toggleServer: (serverId: string) => void;
-    toggleFolder: (folderId: string) => void;
-}
+export function CleanCordContext(
+    getHiddenData: () => { servers: string[]; folders: string[] },
+    settings: any,
+    toggleServer: (serverId: string) => void,
+    toggleFolder: (folderId: string) => void
+) {
+    return function CleanCordContext(children: any[], { guild, folderId }: { guild?: { id: string; name?: string }; folderId?: string }) {
+        if (!settings.store.showOptions) return;
+        if (!guild && !folderId) return;
 
-export function CleanCordContext({
-    guild,
-    folderId,
-    hiddenData,
-    settings,
-    toggleServer,
-    toggleFolder
-}: CleanCordContextProps) {
-    if (!settings.store.showOptions) return null;
-    if (!guild && !folderId) return null;
+        const hiddenData = getHiddenData();
+        const isHidden = guild ? hiddenData.servers.includes(guild.id) : hiddenData.folders.includes(folderId);
+        const isServer = !!guild;
+        const itemType = isServer ? "Server" : "Folder";
+        const label = isHidden ? `Unhide ${itemType}` : `Hide ${itemType}`; //We don't really need this btw, but its useful for debugging :) | Also in the case "onlyHideInStream" = true, this behavior needs to stay
 
-    const isHidden = guild ? hiddenData.servers.includes(guild.id) : hiddenData.folders.includes(folderId);
-    const isServer = !!guild;
-    const itemType = isServer ? "Server" : "Folder";
-    const label = isHidden ? `Unhide ${itemType}` : `Hide ${itemType}`; //We don't really need this btw, but its useful for debugging :) | Also in the case "onlyHideInStream" = true, this behavior needs to stay
-
-    const ToggleIcon = isHidden ? ShowIcon : HideIcon;
-
-    return (
-        <>
-            <Menu.MenuSeparator />
-            <Menu.MenuItem
-                id="clean-cord-menu"
-                label="CleanCord"
-            >
-                <Menu.MenuItem
-                    id="clean-cord-toggle"
-                    label={label}
-                    icon={ToggleIcon}
-                    action={() => {
-                        if (guild) {
-                            toggleServer(guild.id);
-                        } else if (folderId) {
-                            toggleFolder(folderId);
+        const ToggleIcon = isHidden ? HideIcon : ShowIcon;
+        children.push(
+            React.createElement(React.Fragment, { key: "clean-cord-context" }, [
+                React.createElement(Menu.MenuSeparator, { key: "separator" }),
+                React.createElement(Menu.MenuItem, {
+                    key: "clean-cord-menu",
+                    id: "clean-cord-menu",
+                    label: "CleanCord",
+                }, [
+                    React.createElement(Menu.MenuItem, {
+                        key: "clean-cord-toggle",
+                        id: "clean-cord-toggle",
+                        label: label,
+                        icon: ToggleIcon,
+                        action: () => {
+                            if (guild) {
+                                toggleServer(guild.id);
+                            } else if (folderId) {
+                                toggleFolder(folderId);
+                            }
                         }
-                    }}
-                />
-                <Menu.MenuItem
-                    id="clean-cord-manage"
-                    label="Manage CleanCord's Settings"
-                    icon={SettingsIcon}
-                    action={() => {
-                        Vencord.Webpack.Common.SettingsRouter.open("VencordPlugins"); // Opens the Vencord settings panel, need to find a way to redirect to CleanCord's settings (Not implemented yet)
-                    }}
-                />
-            </Menu.MenuItem>
-        </>
-    );
+                    }),
+                    React.createElement(Menu.MenuItem, {
+                        key: "clean-cord-manage",
+                        id: "clean-cord-manage",
+                        label: "Manage CleanCord's Settings",
+                        icon: SettingsIcon,
+                        action: () => {
+                            Vencord.Webpack.Common.SettingsRouter.open("VencordPlugins"); //Opens the Vencord settings panel, need to find a way to redirect to CleanCord's settings (Not implemented yet)
+                        }
+                    })
+                ])
+            ])
+        );
+    };
 }
