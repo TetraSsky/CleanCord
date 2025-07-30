@@ -650,7 +650,7 @@ function toggleFolder(folderId: string) {
 // =============
 export default definePlugin({
     name: "CleanCord",
-    description: "Allows you to hide certain servers/folders in your server list with right-click option and suppress their mentions",
+    description: "Allows you to hide certain servers/folders in your server list with right-click option and manage mentions handling with various settings",
     authors: [{ name: "Tetra_Sky", id: 406453997294190594n }],
     settings,
 
