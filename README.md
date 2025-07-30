@@ -1,6 +1,6 @@
 # CleanCord - Server & Folder Hider for Vencord
 
-![Banner](https://repository-images.githubusercontent.com/1024448994/d3e41256-44b9-42c6-91d7-aeaa0fb88100)
+![Banner](https://repository-images.githubusercontent.com/1027152240/7c7c2904-a7ce-4a75-9d5e-5bea3b75cb7e)
 
 CleanCord is a Vencord plugin that allows you to hide specific servers and folders from your Discord server list, helping you keep your interface clean and organized. Perfect for streamers or anyone who wants to temporarily hide certain servers.
 
