@@ -10,7 +10,6 @@ import definePlugin, { OptionType } from "@utils/types";
 import { Menu, FluxDispatcher } from "@webpack/common";
 import { React } from "@webpack/common";
 import { HiddenItemsList } from "./hiddenItemsList";
-import { on } from "events";
 
 interface HiddenData {
     servers: string[];
