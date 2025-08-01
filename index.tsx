@@ -196,9 +196,7 @@ function checkRateLimit(): boolean {
     }
 
     if (suppressionRateLimit.suppressionCount >= suppressionRateLimit.maxSuppressionsPerSecond) {
-        if (settings.store.debugMode) {
-            logger.warn("Rate limit reached. Allowing message through !");
-        }
+        logger.warn("Rate limit reached. Allowing message through !");
         return false;
     }
     suppressionRateLimit.suppressionCount++;
@@ -235,7 +233,7 @@ function getServersFromHiddenFolders(): string[] {
     return serversInHiddenFolders;
 }
 
-function shouldSuppressMention(guildId: string): boolean {
+function shouldSuppressCheck(guildId: string): boolean {
     if (settings.store.suppressionMode === "off") return false;
     if (!guildId) return false;
 
@@ -252,83 +250,85 @@ function shouldSuppressMention(guildId: string): boolean {
     return shouldSuppress;
 }
 
-function shouldSuppressMessage(action: any): boolean {
-    if (!action || typeof action !== 'object') return false;
-    if (!checkRateLimit()) return false;
+function shouldSuppressMessage(action: any): { suppress: boolean; modifiedAction?: any } {
+    if (!(settings.store.onlyHideInStream && !Vencord.Plugins.plugins.CleanCord?.isStreamingMode())) {
 
-    // Handle - MESSAGE_CREATE (To Prevent : Unread badges, notification sounds and visual indicators)
-    if (action.type === 'MESSAGE_CREATE') {
-        const message = action.message || action;
-        if (settings.store.debugMode) {
-            logger.info("MESSAGE_CREATE intercepted:", {
-                guildId: message.guild_id,
-                channelId: message.channel_id,
-                authorId: message.author?.id,
-                content: message.content?.substring(0, 50) + "...",
-                mentions: message.mentions?.length || 0,
-                mentionEveryone: message.mention_everyone,
-                type: message.type
-            });
-        }
+        if (!action || typeof action !== 'object') return { suppress: false };
+        if (!checkRateLimit()) return { suppress: false };
 
-        if (message.guild_id && shouldSuppressMention(message.guild_id)) {
+        // Handle - MESSAGE_CREATE (To Prevent : Unread badges, notification sounds and visual indicators)
+        if (action.type === 'MESSAGE_CREATE') {
+            const message = action.message || action;
             if (settings.store.debugMode) {
-                const isDirectlyHidden = hiddenData.servers.includes(message.guild_id);
-                const reason = isDirectlyHidden ? "hidden server" : "server in hidden folder";
-                const currentUserId = Vencord.Webpack.findStore("UserStore")?.getCurrentUser()?.id;
-                const isMentioned = currentUserId && message.mentions ? message.mentions.some((mention: any) => mention.id === currentUserId) : false;
-
-                logger.info(`Suppressing message from ${reason}`, {
+                logger.info("MESSAGE_CREATE intercepted:", {
                     guildId: message.guild_id,
-                    mentioned: isMentioned,
-                    everyone: message.mention_everyone,
-                    channel: message.channel_id,
+                    channelId: message.channel_id,
+                    authorId: message.author?.id,
+                    content: message.content?.substring(0, 50) + "...",
+                    mentions: message.mentions?.length || 0,
+                    mentionEveryone: message.mention_everyone,
+                    type: message.type,
+                    flags: message.flags
                 });
             }
-            return true;
-        }
-    }
 
-    // Handle - CHANNEL_UNREAD_UPDATE (To Prevent : Unread updates)
-    if (action.type === 'CHANNEL_UNREAD_UPDATE') {
-        const guildId = action.guildId;
-        if (guildId && shouldSuppressMention(guildId)) {
-            if (settings.store.debugMode) {
-                const isDirectlyHidden = hiddenData.servers.includes(guildId);
-                const reason = isDirectlyHidden ? "hidden server" : "server in hidden folder";
-                logger.info(`Suppressing unread update from ${reason}: ${guildId} (mentions: ${action.mentionCount || 0}, unread: ${action.unreadCount || 0})`);
+            if (message.guild_id && shouldSuppressCheck(message.guild_id)) {
+
+                const currentGuildId = Vencord.Webpack.findStore("SelectedGuildStore")?.getGuildId();
+                if (message.guild_id === currentGuildId) {
+                    logger.warn("Allowing unmodified MESSAGE_CREATE - User is in the server");
+                    return { suppress: false };
+                }
+
+                const currentUserId = Vencord.Webpack.findStore("UserStore")?.getCurrentUser()?.id;
+                const guildMuted = isGuildMuted(message.guild_id);
+                const hasMentions = ((message.mentions?.length > 0 && currentUserId && message.mentions.some(m => m.id === currentUserId)) || message.mention_everyone);
+
+                if ((guildMuted && hasMentions) || !guildMuted) {
+                    const modifiedAction = JSON.parse(JSON.stringify(action));
+                    const modifiedMessage = modifiedAction.message || modifiedAction;
+
+                    // Silent Flag 4096 = "1 << 12" - SUPPRESS_NOTIFICATIONS
+                    modifiedMessage.flags = (modifiedMessage.flags || 0) | 1 << 12;
+
+                    // Mark the message as already read to prevent unread badges - We dispatch a MESSAGE_ACK after the message is processed
+                    setTimeout(() => {
+                        try {
+                            FluxDispatcher.dispatch({
+                                type: "MESSAGE_ACK",
+                                channelId: modifiedMessage.channel_id,
+                                messageId: modifiedMessage.id,
+                                version: Date.now(),
+                                isExplicit: false
+                            });
+                        } catch (ackError) {
+                            if (settings.store.debugMode) {
+                                logger.error("Failed to auto-ACK hidden server message:", ackError);
+                            }
+                        }
+                    }, 0);
+
+                    if (settings.store.debugMode) {
+                        const isDirectlyHidden = hiddenData.servers.includes(message.guild_id);
+                        const reason = isDirectlyHidden ? "hidden server" : "server in hidden folder";
+                        logger.info(`Modifying message from ${reason} to appear muted`, {
+                            channel: message.channel_id,
+                            everyone: message.mention_everyone,
+                            guildId: message.guild_id,
+                            guildMuted: guildMuted,
+                            mentioned: currentUserId && message.mentions?.some(m => m.id === currentUserId),
+                            originalFlags: message.flags,
+                            newFlags: modifiedMessage.flags
+                        });
+                    }
+
+                    return { suppress: false, modifiedAction };
+                }
             }
-            return true;
         }
     }
 
-    // Handle - MESSAGE_REACTION_ADD (To Prevent : Reactions on messages)
-    if (action.type === 'MESSAGE_REACTION_ADD') {
-        const guildId = action.guild_id;
-        if (guildId && shouldSuppressMention(guildId)) {
-            if (settings.store.debugMode) {
-                const isDirectlyHidden = hiddenData.servers.includes(guildId);
-                const reason = isDirectlyHidden ? "hidden server" : "server in hidden folder";
-                logger.info(`Suppressing reaction add from ${reason}: ${guildId}`);
-            }
-            return true;
-        }
-    }
-
-    // Handle - MESSAGE_REACTION_REMOVE (To Prevent : Reaction removal notifications)
-    if (action.type === 'MESSAGE_REACTION_REMOVE') {
-        const guildId = action.guild_id;
-        if (guildId && shouldSuppressMention(guildId)) {
-            if (settings.store.debugMode) {
-                const isDirectlyHidden = hiddenData.servers.includes(guildId);
-                const reason = isDirectlyHidden ? "hidden server" : "server in hidden folder";
-                logger.info(`Suppressing reaction remove from ${reason}: ${guildId}`);
-            }
-            return true;
-        }
-    }
-
-    return false;
+    return { suppress: false };
 }
 
 function patchFluxDispatcher() {
@@ -337,12 +337,14 @@ function patchFluxDispatcher() {
     try {
         originalDispatch = FluxDispatcher.dispatch;
         FluxDispatcher.dispatch = function(action: any) {
-            if (shouldSuppressMessage(action)) {
+            const suppressionResult = shouldSuppressMessage(action);
+            if (suppressionResult.suppress) {
                 // Return a resolved Promise to maintain Discord's expected behavior (& Prevent crashes)
                 return Promise.resolve();
             }
 
-            const result = originalDispatch.call(this, action);
+            const actionToDispatch = suppressionResult.modifiedAction || action;
+            const result = originalDispatch.call(this, actionToDispatch);
 
             // We always need to ensure we return a Promise
             if (result && typeof result.then === 'function') {
@@ -488,7 +490,9 @@ function clearHiddenMentions() {
                     });
 
                 } catch (guildError) {
-                    logger.error(`Error processing guild ${guildId}:`, guildError);
+                    if (settings.store.debugMode) {
+                        logger.error(`Error processing guild ${guildId}:`, guildError);
+                    }
                 }
             });
 
@@ -538,10 +542,14 @@ function clearHiddenMentions() {
             }
 
         } catch (error) {
-            logger.error("Mentions clearing failed :", error);
+            if (settings.store.debugMode) {
+                logger.error("Mentions clearing failed :", error);
+            }
         }
     } else {
-        logger.warn(`Skipping mentions clearing - "onlyHideInStream" is ON but Streamer Mode is OFF !`);
+        if (settings.store.debugMode) {
+            logger.warn(`Skipping mentions clearing - "onlyHideInStream" is ON but Streamer Mode is OFF !`);
+        }
     }
 }
 
@@ -599,7 +607,7 @@ function updateCSSClasses() {
             `html[data-clean-cord-enabled="true"] [data-list-item-id="guildsnav___${serverId}"] { display: none !important; }`,
             `html[data-clean-cord-enabled="true"] .folderPreviewGuildIcon__48112[style*="${serverId}"] { display: none !important; }`,
             `html[data-clean-cord-enabled="true"] .folderPreviewGuildIcon__48112[style*="icons/${serverId}/"] { display: none !important; }`,
-            `html[data-clean-cord-enabled="true"] .folderGuildsList__48112:has([data-list-item-id="guildsnav___${serverId}"]) { height: calc(100% - 48px) !important; }`
+            `html[data-clean-cord-enabled="true"] .folderGuildsList__48112:has([data-list-item-id="guildsnav___${serverId}"]) { height: 100% !important; }` // Calc CSS function does not work - TO BE FIXED
         );
     });
 
