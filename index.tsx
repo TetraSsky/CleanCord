@@ -12,6 +12,7 @@ import { React } from "@webpack/common";
 
 import { HiddenItemsList } from "./hiddenItemsList";
 import { CleanCordContext } from "./contextMenuComponents";
+import { DiscordStores } from "./storesManager";
 
 interface HiddenData {
     servers: string[];
@@ -21,6 +22,9 @@ interface HiddenData {
 const logger = new Logger("CleanCord");
 let hiddenData: HiddenData = { servers: [], folders: [] };
 let originalDispatch: any = null;
+
+// Initialize stores instance - When plugin starts
+let stores: DiscordStores;
 
 // ===============================
 // PLUGIN SETTINGS CONFIGURATION =
@@ -204,33 +208,7 @@ function checkRateLimit(): boolean {
 }
 
 function getServersFromHiddenFolders(): string[] {
-    const serversInHiddenFolders: string[] = [];
-
-    try {
-        const SortedGuildStore = Vencord.Webpack.findStore("SortedGuildStore");
-
-        if (SortedGuildStore && SortedGuildStore.getGuildFolders) {
-            const guildFolders = SortedGuildStore.getGuildFolders();
-
-            hiddenData.folders.forEach(hiddenFolderId => {
-                const folder = guildFolders.find((folder: any) =>
-                    folder.folderId === hiddenFolderId || folder.id === hiddenFolderId
-                );
-
-                if (folder && folder.guildIds) {
-                    folder.guildIds.forEach((guildId: string) => {
-                        if (guildId && !serversInHiddenFolders.includes(guildId)) {
-                            serversInHiddenFolders.push(guildId);
-                        }
-                    });
-                }
-            });
-        }
-    } catch (error) {
-        logger.error("Error getting servers in hidden folders:", error);
-    }
-
-    return serversInHiddenFolders;
+    return stores.getServersFromFolders(hiddenData.folders);
 }
 
 function shouldSuppressCheck(guildId: string): boolean {
@@ -243,7 +221,7 @@ function shouldSuppressCheck(guildId: string): boolean {
     const shouldSuppress = isHiddenServer || isInHiddenFolder;
 
     if (settings.store.onlyHideInStream) {
-        const isStreaming = Vencord.Plugins.plugins.CleanCord?.isStreamingMode() ?? false;
+        const isStreaming = stores.isStreamingMode();
         return shouldSuppress && isStreaming;
     }
 
@@ -251,40 +229,42 @@ function shouldSuppressCheck(guildId: string): boolean {
 }
 
 function shouldSuppressMessage(action: any): { suppress: boolean; modifiedAction?: any } {
-    if (!(settings.store.onlyHideInStream && !Vencord.Plugins.plugins.CleanCord?.isStreamingMode())) {
+    if (!(settings.store.onlyHideInStream && !stores.isStreamingMode())) {
 
         if (!action || typeof action !== 'object') return { suppress: false };
         if (!checkRateLimit()) return { suppress: false };
 
+        const message = action.message || action;
+
         // Handle - MESSAGE_CREATE (To Prevent : Unread badges, notification sounds and visual indicators)
         if (action.type === 'MESSAGE_CREATE') {
-            const message = action.message || action;
-            if (settings.store.debugMode) {
-                logger.info("MESSAGE_CREATE intercepted:", {
-                    guildId: message.guild_id,
-                    channelId: message.channel_id,
-                    authorId: message.author?.id,
-                    content: message.content?.substring(0, 50) + "...",
-                    mentions: message.mentions?.length || 0,
-                    mentionEveryone: message.mention_everyone,
-                    type: message.type,
-                    flags: message.flags
-                });
-            }
 
             if (message.guild_id && shouldSuppressCheck(message.guild_id)) {
 
-                const currentGuildId = Vencord.Webpack.findStore("SelectedGuildStore")?.getGuildId();
+                const currentGuildId = stores.getCurrentGuildId();
                 if (message.guild_id === currentGuildId) {
                     logger.warn("Allowing unmodified MESSAGE_CREATE - User is in the server");
                     return { suppress: false };
                 }
 
-                const currentUserId = Vencord.Webpack.findStore("UserStore")?.getCurrentUser()?.id;
-                const guildMuted = isGuildMuted(message.guild_id);
+                const currentUserId = stores.getCurrentUserId();
+                const guildMuted = stores.isGuildMuted(message.guild_id);
                 const hasMentions = ((message.mentions?.length > 0 && currentUserId && message.mentions.some(m => m.id === currentUserId)) || message.mention_everyone);
 
                 if ((guildMuted && hasMentions) || !guildMuted) {
+                    if (settings.store.debugMode) {
+                        logger.info("MESSAGE_CREATE intercepted:", {
+                            guildId: message.guild_id,
+                            channelId: message.channel_id,
+                            authorId: message.author?.id,
+                            content: message.content?.substring(0, 50) + "...",
+                            mentions: message.mentions?.length || 0,
+                            mentionEveryone: message.mention_everyone,
+                            type: message.type,
+                            flags: message.flags
+                        });
+                    }
+
                     const modifiedAction = JSON.parse(JSON.stringify(action));
                     const modifiedMessage = modifiedAction.message || modifiedAction;
 
@@ -379,14 +359,11 @@ function clearHiddenMentions() {
         return;
     }
 
-    if (!(settings.store.onlyHideInStream && !Vencord.Plugins.plugins.CleanCord?.isStreamingMode())) {
+    if (!(settings.store.onlyHideInStream && !stores.isStreamingMode())) {
         try {
-            const GuildStore = Vencord.Webpack.findStore("GuildStore") || Vencord.Webpack.findByProps("getGuild", "getGuilds");
-            const ChannelStore = Vencord.Webpack.findStore("ChannelStore") || Vencord.Webpack.findByProps("getChannel", "getChannels");
-            const ReadStateStore = Vencord.Webpack.findStore("ReadStateStore") || Vencord.Webpack.findByProps("hasUnread", "getMentionCount");
-
-            if (!GuildStore || !ChannelStore || !ReadStateStore) {
-                logger.error("Required stores not found for clearing mentions");
+            const missingStores = stores.validateStores();
+            if (missingStores.length > 0) {
+                logger.error("Required stores not found for clearing mentions:", missingStores);
                 return;
             }
 
@@ -411,7 +388,7 @@ function clearHiddenMentions() {
                 if (!guildId) return;
 
                 try {
-                    const guild = GuildStore.getGuild(guildId);
+                    const guild = stores.getGuild(guildId);
                     if (!guild) {
                         if (settings.store.debugMode) {
                             logger.warn(`Guild ${guildId} not found in GuildStore`);
@@ -420,15 +397,7 @@ function clearHiddenMentions() {
                     }
                     serversProcessed++;
 
-                    let channels: any[] = [];
-                    const GuildChannelStore = Vencord.Webpack.findStore("GuildChannelStore") || Vencord.Webpack.findByProps("getChannels", "getSelectableChannels");
-
-                    if (GuildChannelStore && GuildChannelStore.getChannels) {
-                        const guildChannels = GuildChannelStore.getChannels(guildId);
-                        if (guildChannels && guildChannels.SELECTABLE) {
-                            channels = guildChannels.SELECTABLE.map((item: any) => item.channel).filter(Boolean);
-                        }
-                    }
+                    const channels = stores.getGuildChannels(guildId);
 
                     if (settings.store.debugMode) {
                         logger.info(`Processing guild ${guild.name || guildId}: found ${channels.length} channels`);
@@ -439,14 +408,13 @@ function clearHiddenMentions() {
 
                         totalChannelsChecked++;
 
-                        const guildMuted = isGuildMuted(guildId);
+                        const guildMuted = stores.isGuildMuted(guildId);
 
                         if (guildMuted) {
-
-                            const mentionCount = ReadStateStore.getMentionCount ? ReadStateStore.getMentionCount(channel.id) : 0;
+                            const mentionCount = stores.getMentionCount(channel.id);
 
                             if (mentionCount > 0) {
-                                const lastMessageId = ReadStateStore.lastMessageId ? ReadStateStore.lastMessageId(channel.id) : null;
+                                const lastMessageId = stores.getLastMessageId(channel.id);
 
                                 channelsToAck.push({
                                     channelId: channel.id,
@@ -464,11 +432,11 @@ function clearHiddenMentions() {
                                 }
                             }
                         } else {
-                            const hasUnread = ReadStateStore.hasUnread && ReadStateStore.hasUnread(channel.id);
-                            const mentionCount = ReadStateStore.getMentionCount ? ReadStateStore.getMentionCount(channel.id) : 0;
+                            const hasUnread = stores.hasUnread(channel.id);
+                            const mentionCount = stores.getMentionCount(channel.id);
 
                             if (hasUnread || mentionCount > 0) {
-                                const lastMessageId = ReadStateStore.lastMessageId ? ReadStateStore.lastMessageId(channel.id) : null;
+                                const lastMessageId = stores.getLastMessageId(channel.id);
 
                                 channelsToAck.push({
                                     channelId: channel.id,
@@ -553,38 +521,13 @@ function clearHiddenMentions() {
     }
 }
 
-function isGuildMuted(guildId: string): boolean {
-    try {
-        const UserGuildSettingsStore = Vencord.Webpack.findStore("UserGuildSettingsStore") || Vencord.Webpack.findByProps("getGuildSettings", "isMuted") || Vencord.Webpack.findByProps("getUserGuildSettings");
-
-        if (UserGuildSettingsStore) {
-            if (UserGuildSettingsStore.isMuted && typeof UserGuildSettingsStore.isMuted === 'function') {
-                return UserGuildSettingsStore.isMuted(guildId);
-            }
-        }
-
-        const GuildSettingsStore = Vencord.Webpack.findByProps("getMessageNotifications", "getGuildSettings");
-        if (GuildSettingsStore && GuildSettingsStore.getGuildSettings) {
-            const settings = GuildSettingsStore.getGuildSettings(guildId);
-            return settings?.muted === true;
-        }
-
-        return false;
-    } catch (error) {
-        if (settings.store.debugMode) {
-            logger.warn(`Could not determine mute status for guild ${guildId}:`, error);
-        }
-        return false;
-    }
-}
-
 // ==========================
 // CSS MANAGEMENT FUNCTIONS =
 // ==========================
 const CSS_ELEMENT_ID = 'clean-cord-dynamic-styles';
 
 function updateCSSClasses() {
-    const shouldHide = !settings.store.onlyHideInStream || Vencord.Plugins.plugins.CleanCord?.isStreamingMode();
+    const shouldHide = !settings.store.onlyHideInStream || stores.isStreamingMode();
     document.documentElement.setAttribute('data-clean-cord-enabled', shouldHide.toString());
 
     let styleElement = document.getElementById(CSS_ELEMENT_ID) as HTMLStyleElement;
@@ -606,8 +549,7 @@ function updateCSSClasses() {
             `html[data-clean-cord-enabled="true"] .listItem__650eb:has([data-list-item-id="guildsnav___${serverId}"]) { display: none !important; }`,
             `html[data-clean-cord-enabled="true"] [data-list-item-id="guildsnav___${serverId}"] { display: none !important; }`,
             `html[data-clean-cord-enabled="true"] .folderPreviewGuildIcon__48112[style*="${serverId}"] { display: none !important; }`,
-            `html[data-clean-cord-enabled="true"] .folderPreviewGuildIcon__48112[style*="icons/${serverId}/"] { display: none !important; }`,
-            `html[data-clean-cord-enabled="true"] .folderGuildsList__48112:has([data-list-item-id="guildsnav___${serverId}"]) { height: 100% !important; }` // Calc CSS function does not work - TO BE FIXED
+            `html[data-clean-cord-enabled="true"] .folderPreviewGuildIcon__48112[style*="icons/${serverId}/"] { display: none !important; }`
         );
     });
 
@@ -617,6 +559,33 @@ function updateCSSClasses() {
             `html[data-clean-cord-enabled="true"] [data-list-item-id*="${folderId}"] { display: none !important; }`,
             `html[data-clean-cord-enabled="true"] .folderGroup__48112:has([data-list-item-id*="${folderId}"]) { display: none !important; }`
         );
+
+        try {
+            const guildFolders = stores.getGuildFolders();
+
+            guildFolders.forEach((folder: any) => {
+                const folderId = folder.folderId || folder.id;
+
+                if (hiddenData.folders.includes(folderId)) return;
+
+                const hasHiddenServers = folder.guildIds?.some((guildId: string) =>
+                    hiddenData.servers.includes(guildId)
+                );
+
+                if (hasHiddenServers) {
+                    // Only need to count servers that are NOT currently hidden
+                    const folderHeight = folder.guildIds.filter((guildId: string) => !hiddenData.servers.includes(guildId)).length;
+
+                    if (folderHeight > 0) {
+                        cssRules.push(
+                            `html[data-clean-cord-enabled="true"] .folderGroup__48112.isExpanded__48112:has([data-list-item-id*="${folderId}"]) { height: calc((${folderHeight} * 48px) + 48px) !important; }` // +48px to account for the server we're hidding
+                        );
+                    }
+                }
+            });
+        } catch (error) {
+            // Silently fail - Keep the UI (even broken) as is
+        }
     });
 
     styleElement.textContent = cssRules.join('\n');
@@ -668,12 +637,12 @@ export default definePlugin({
     authors: [{ name: "Tetra_Sky", id: 406453997294190594n }],
     settings,
 
-    streamerModeStore: null as any,
     streamerModeListener: null as (() => void) | null,
 
     start() {
+        stores = DiscordStores.getInstance();
+
         loadHiddenData();
-        this.streamerModeStore = Vencord.Webpack.findStore("StreamerModeStore") || Vencord.Webpack.getByProps("StreamerModeStore")?.StreamerModeStore;
         this.updateStreamerModeListener();
         updateCSSClasses();
 
@@ -700,26 +669,20 @@ export default definePlugin({
     },
 
     isStreamingMode() {
-        if (!this.streamerModeStore) return false;
-        try {
-            return this.streamerModeStore.enabled;
-        } catch (e) {
-            logger.error("Error checking streamer mode:", e);
-            return false;
-        }
+        return stores.isStreamingMode();
     },
 
     updateStreamerModeListener() {
         this.removeStreamerModeListener();
-        if (settings.store.onlyHideInStream && this.streamerModeStore) {
+        if (settings.store.onlyHideInStream && stores.StreamerModeStore) {
             this.streamerModeListener = () => updateCSSClasses();
-            this.streamerModeStore.addChangeListener(this.streamerModeListener);
+            stores.StreamerModeStore.addChangeListener(this.streamerModeListener);
         }
     },
 
     removeStreamerModeListener() {
-        if (this.streamerModeStore && this.streamerModeListener) {
-            this.streamerModeStore.removeChangeListener(this.streamerModeListener);
+        if (stores.StreamerModeStore && this.streamerModeListener) {
+            stores.StreamerModeStore.removeChangeListener(this.streamerModeListener);
             this.streamerModeListener = null;
         }
     },

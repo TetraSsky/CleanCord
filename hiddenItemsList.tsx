@@ -11,6 +11,7 @@
 */
 
 import { React } from "@webpack/common";
+import { DiscordStores } from "./storesManager";
 
 interface HiddenItemsListProps {
     type: "server" | "folder";
@@ -21,7 +22,15 @@ interface HiddenItemsListProps {
 }
 
 export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInStreamEnabled }: HiddenItemsListProps) {
-    const isStreamMode = Vencord.Plugins.plugins.CleanCord?.isStreamingMode() ?? false;
+    const isStreamMode = React.useMemo(() => {
+        try {
+            const stores = DiscordStores.getInstance();
+            return stores.isStreamingMode();
+        } catch (error) {
+            console.warn("Failed to check streaming mode:", error);
+            return false;
+        }
+    }, []);
 
     const containerStyle = React.useMemo(() => ({
         backgroundColor: "var(--background-secondary)",
