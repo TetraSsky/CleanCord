@@ -51,9 +51,9 @@ Enable the "Only hide in Streamer Mode" option to:
 |--------|-------------|---------|
 | Show Options | Displays the hide/unhide options in right-click menus | Enabled |
 | Only Hide in Streamer Mode | Servers/folders will only be hidden when Streamer Mode is active | Disabled |
+| Hide In Quick Switcher | Also hide servers from the quick switcher (Ctrl+K) | Disabled |
 | Suppression Mode | Default - Keep initial Discord behaviour for notifications / Silent - Block all notifications in real-time from hidden servers/folders (Resets on startup) | Silent |
 | Auto Clear Mentions | Automatically clear all unread badges from hidden servers/folders on startup (Recommended to use with 'Silent' mode) | Disabled |
-| Hide In Quick Switcher | Also hide servers from the quick switcher (Ctrl+K) | Disabled |
 | Hidden Servers | Manage your list of hidden servers | - |
 | Hidden Folders | Manage your list of hidden folders | - |
 
