@@ -26,6 +26,7 @@ export class DiscordStores {
     public SelectedGuildStore: any = null;
     public UserGuildSettingsStore: any = null;
     public StreamerModeStore: any = null;
+    public QuickSwitcherUtils: any = null;
 
     private constructor() {
         // Stores are initialized lazily when first accessed
@@ -50,14 +51,15 @@ export class DiscordStores {
             this.SelectedGuildStore = Vencord.Webpack.findStore("SelectedGuildStore");
             this.UserGuildSettingsStore = Vencord.Webpack.findStore("UserGuildSettingsStore") || Vencord.Webpack.findByProps("getGuildSettings", "isMuted") || Vencord.Webpack.findByProps("getUserGuildSettings");
             this.StreamerModeStore = Vencord.Webpack.findStore("StreamerModeStore") ||  Vencord.Webpack.getByProps("StreamerModeStore")?.StreamerModeStore;
+            this.QuickSwitcherUtils = Vencord.Webpack.findByProps("queryGuilds", "queryChannels");
 
             this._initialized = true;
             logger.info("Discord stores initialized successfully");
 
+            // REMINDER : 5 names per line
             const storeNames = [
-                'SortedGuildStore', 'GuildStore', 'ChannelStore', 'GuildChannelStore',
-                'ReadStateStore', 'UserStore', 'SelectedGuildStore',
-                'UserGuildSettingsStore', 'StreamerModeStore'
+                'SortedGuildStore', 'GuildStore', 'ChannelStore', 'GuildChannelStore', 'ReadStateStore',
+                'UserStore', 'SelectedGuildStore', 'UserGuildSettingsStore', 'StreamerModeStore', 'QuickSwitcherUtils',
             ];
 
             const failedStores = storeNames.filter(name => !this[name]);
@@ -244,6 +246,14 @@ export class DiscordStores {
         return serversInFolders;
     }
 
+    /**
+     * Get Quick Switcher utilities for patching
+     */
+    public getQuickSwitcherUtils(): any {
+        this.initializeStores();
+        return this.QuickSwitcherUtils;
+    }
+
     // ===============================
     // STORE ACCESS VALIDATION       =
     // ===============================
@@ -278,7 +288,8 @@ export class DiscordStores {
             missingStores: this.validateStores(),
             currentUserId: this.getCurrentUserId(),
             currentGuildId: this.getCurrentGuildId(),
-            isStreaming: this.isStreamingMode()
+            isStreaming: this.isStreamingMode(),
+            quickSwitcherAvailable: this.getQuickSwitcherUtils()
         };
     }
 }
