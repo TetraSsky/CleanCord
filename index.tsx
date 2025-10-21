@@ -87,13 +87,11 @@ const settings = definePluginSettings({
     },
 
     // CleanCord : DEBUG CATEGORY | Commented out by default
-    /*
-    debugMode: {
-        description: "Cool dev menu option B)",
-        type: OptionType.BOOLEAN,
-        default: false,
-    },
-    */
+    // debugMode: {
+    //     description: "Cool dev menu option B)",
+    //     type: OptionType.BOOLEAN,
+    //     default: false,
+    // },
 
     // CleanCord : Servers CATEGORY
     hiddenServers: {
@@ -405,6 +403,13 @@ function shouldSuppressMessage(action: any): { suppress: boolean; modifiedAction
         // Handle - MESSAGE_CREATE (To Prevent : Unread badges, notification sounds and visual indicators)
         if (action.type === 'MESSAGE_CREATE') {
 
+            if (settings.store.debugMode) {
+                logger.info("[DEBUG] - MESSAGE_CREATE intercepted:", {
+                    guildId: message.guild_id,
+                    content: message
+                });
+            }
+
             if (message.guild_id && shouldSuppressCheck(message.guild_id)) {
 
                 const currentGuildId = stores.getCurrentGuildId();
@@ -415,7 +420,12 @@ function shouldSuppressMessage(action: any): { suppress: boolean; modifiedAction
 
                 const currentUserId = stores.getCurrentUserId();
                 const guildMuted = stores.isGuildMuted(message.guild_id);
-                const hasMentions = ((message.mentions?.length > 0 && currentUserId && message.mentions.some(m => m.id === currentUserId)) || message.mention_everyone);
+                
+                const hasUserMentions = message.mentions?.length > 0 && currentUserId && message.mentions.some(m => m.id === currentUserId);
+                const hasRoleMentions = message.mention_roles?.length > 0 && stores.hasMentionedRole(message.guild_id, message.mention_roles, currentUserId);
+                const hasEveryoneMention = message.mention_everyone;
+                
+                const hasMentions = hasUserMentions || hasRoleMentions || hasEveryoneMention;
 
                 if ((guildMuted && hasMentions) || !guildMuted) {
                     if (settings.store.debugMode) {
@@ -426,8 +436,12 @@ function shouldSuppressMessage(action: any): { suppress: boolean; modifiedAction
                             content: message.content?.substring(0, 50) + "...",
                             mentions: message.mentions?.length || 0,
                             mentionEveryone: message.mention_everyone,
+                            mentionRoles: message.mention_roles,
+                            hasUserMentions,
+                            hasRoleMentions,
                             type: message.type,
-                            flags: message.flags
+                            flags: message.flags,
+                            original_message: message
                         });
                     }
 
@@ -460,9 +474,11 @@ function shouldSuppressMessage(action: any): { suppress: boolean; modifiedAction
                         logger.info(`Modifying message from ${reason} to appear muted`, {
                             channel: message.channel_id,
                             everyone: message.mention_everyone,
+                            roles: message.mention_roles,
                             guildId: message.guild_id,
                             guildMuted: guildMuted,
-                            mentioned: currentUserId && message.mentions?.some(m => m.id === currentUserId),
+                            mentioned: hasUserMentions,
+                            roleMentioned: hasRoleMentions,
                             originalFlags: message.flags,
                             newFlags: modifiedMessage.flags
                         });

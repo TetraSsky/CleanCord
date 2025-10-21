@@ -27,6 +27,7 @@ export class DiscordStores {
     public UserGuildSettingsStore: any = null;
     public StreamerModeStore: any = null;
     public QuickSwitcherUtils: any = null;
+    public GuildMemberStore: any = null;
 
     private constructor() {
         // Stores are initialized lazily when first accessed
@@ -52,6 +53,7 @@ export class DiscordStores {
             this.UserGuildSettingsStore = Vencord.Webpack.findStore("UserGuildSettingsStore") || Vencord.Webpack.findByProps("getGuildSettings", "isMuted") || Vencord.Webpack.findByProps("getUserGuildSettings");
             this.StreamerModeStore = Vencord.Webpack.findStore("StreamerModeStore") ||  Vencord.Webpack.getByProps("StreamerModeStore")?.StreamerModeStore;
             this.QuickSwitcherUtils = Vencord.Webpack.findByProps("queryGuilds", "queryChannels");
+            this.GuildMemberStore = Vencord.Webpack.findStore("GuildMemberStore") || Vencord.Webpack.findByProps("getMember", "getMembers");
 
             this._initialized = true;
             logger.info("Discord stores initialized successfully");
@@ -60,6 +62,7 @@ export class DiscordStores {
             const storeNames = [
                 'SortedGuildStore', 'GuildStore', 'ChannelStore', 'GuildChannelStore', 'ReadStateStore',
                 'UserStore', 'SelectedGuildStore', 'UserGuildSettingsStore', 'StreamerModeStore', 'QuickSwitcherUtils',
+                'GuildMemberStore'
             ];
 
             const failedStores = storeNames.filter(name => !this[name]);
@@ -252,6 +255,47 @@ export class DiscordStores {
     public getQuickSwitcherUtils(): any {
         this.initializeStores();
         return this.QuickSwitcherUtils;
+    }
+
+    /**
+     * Get all user's roles from specific guild
+     */
+    public getUserRoles(guildId: string, userId?: string): string[] {
+        this.initializeStores();
+
+        if (!guildId) return [];
+
+        try {
+            const targetUserId = userId || this.getCurrentUserId();
+            if (!targetUserId) return [];
+
+            if (this.GuildMemberStore?.getMember) {
+                const member = this.GuildMemberStore.getMember(guildId, targetUserId);
+                if (member?.roles) {
+                    return Array.isArray(member.roles) ? member.roles : [];
+                }
+            }
+
+            return [];
+        } catch (error) {
+            logger.warn(`Could not get roles for user ${userId} in guild ${guildId}:`, error);
+            return [];
+        }
+    }
+
+    /**
+     * Check if user has any of the mentioned roles within the "mention_roles" array
+     */
+    public hasMentionedRole(guildId: string, mentionedRoles: string[], userId?: string): boolean {
+        if (!guildId || !mentionedRoles || mentionedRoles.length === 0) return false;
+
+        try {
+            const userRoles = this.getUserRoles(guildId, userId);
+            return mentionedRoles.some(roleId => userRoles.includes(roleId));
+        } catch (error) {
+            logger.warn(`Could not check role mentions for guild ${guildId}:`, error);
+            return false;
+        }
     }
 
     // ===============================
