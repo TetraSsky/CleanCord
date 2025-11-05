@@ -68,7 +68,7 @@ Enable the "Only hide in Streamer Mode" option to:
 - No, people from any hidden server can still interact with you and vise versa. The "icons" Discord displays in the server listing are only hidden with Custom CSS injection.
 
 **❓ : Will people know I'm using CleanCord?**
-- No, this is purely a visual change on your client. Moreover, there is a setting to completely hide CleanCord's right-click options!
+- No, this is purely a visual change on your client. Moreover, there is a setting to completely hide CleanCord's right-click options!   
 (Same goes whilst streaming, by enabling the option, CleanCord will silently hide your hidden elements the moment **Streamer Mode** is on)
 
 **❓: Will my hidden elements stay hidden after restarting Discord?**
