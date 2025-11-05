@@ -10,9 +10,7 @@ CleanCord is a Vencord plugin that allows you to hide specific servers and folde
 - Hide entire folders with a right-click
 - Option to only hide servers when in Streamer Mode
 - Option to also hide servers when using Quick-Switcher (CTRL+K)
-- Manage hidden servers/folders through a clean interface
-- Preserves your hidden items between sessions
-- Completely free and open-source
+- Manage hidden servers/folders through Vencord plugin settings
 
 ## Installation
 **Prerequiries** : [git](https://git-scm.com/downloads) / [NodeJS](https://nodejs.org/en/download) / [pnpm](https://pnpm.io/installation)
@@ -53,14 +51,11 @@ Enable the "Only hide in Streamer Mode" option to:
 | Only Hide in Streamer Mode | Servers/folders will only be hidden when Streamer Mode is active | Disabled |
 | Hide In Quick Switcher | Also hide servers from the quick switcher (Ctrl+K) | Disabled |
 | Suppression Mode | Default - Keep initial Discord behaviour for notifications / Silent - Block all notifications in real-time from hidden servers/folders (Resets on startup) | Silent |
-| Auto Clear Mentions | Automatically clear all unread badges from hidden servers/folders on startup (Recommended to use with 'Silent' mode) | Disabled |
+| Auto Clear Mentions | Automatically clear all unread badges from hidden servers/folders on startup (Recommended to use with Suppression Mode set to 'Silent') | Disabled |
 | Hidden Servers | Manage your list of hidden servers | - |
 | Hidden Folders | Manage your list of hidden folders | - |
 
 ## FAQ
-
-**❓ : Will people know I've hidden servers/folders?**
-- No, this is purely a visual change on your client. Others can't see what you've hidden. Moreover, there is an option to completely hide the right-click options in the settings!
 
 **❓: Do hidden servers still show notifications?**
 - No, hidden servers won't display unread messages, mention counts or play notifications sounds.  
@@ -72,8 +67,12 @@ Enable the "Only hide in Streamer Mode" option to:
 **❓: Does this plugin breaks interaction with hidden servers?**
 - No, people from any hidden server can still interact with you and vise versa. The "icons" Discord displays in the server listing are only hidden with Custom CSS injection.
 
-**❓: Will my hidden servers stay hidden after restarting Discord?**
-- Yes, your preferences are saved between sessions!
+**❓ : Will people know I'm using CleanCord?**
+- No, this is purely a visual change on your client. Moreover, there is a setting to completely hide CleanCord's right-click options!
+(Same goes whilst streaming, by enabling the option, CleanCord will silently hide your hidden elements the moment **Streamer Mode** is on)
+
+**❓: Will my hidden elements stay hidden after restarting Discord?**
+- Yes, your preferences are saved between sessions thanks to Vencord!
 
 ## Screenshots
 
