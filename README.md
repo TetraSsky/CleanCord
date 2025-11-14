@@ -86,7 +86,7 @@ Enable the "Only hide in Streamer Mode" option to:
     <td width="50%"><img src="https://github.com/user-attachments/assets/a6b29511-285c-4972-a574-5968f66fb7ef" alt="Streamer mode example 2" style="width:100%"></td>
   </tr>
   <tr>
-    <td width="50%"><img src="https://github.com/user-attachments/assets/a022d38f-3a93-4482-abbe-93392abebfb2" alt="Hidden elements showcase" style="width:100%"></td>
+    <td width="100s%"><img src="https://github.com/user-attachments/assets/a022d38f-3a93-4482-abbe-93392abebfb2" alt="Hidden elements showcase" style="width:100%"></td>
   </tr>
 </table>
 
