@@ -19,7 +19,7 @@ CleanCord is a Vencord plugin that allows you to hide specific servers and folde
 - Inside the 'Vencord' Folder, navigate to "`.\src\`" and create a new folder called "**userplugins**"
 - Then inside that new 'userplugin' Folder, navigate to it with your (hopefully, still opened) CMD window (Ex : "`cd .\src\userplugins\`") and type, command : `git clone https://github.com/TetraSsky/CleanCord/`
 - Then command : `pnpm build`
-- And lastly command : `pnpm inject`  
+- And lastly command : `pnpm inject`
 (Select your Discord path (Stable / Canary))
 
 ## Usage
@@ -58,7 +58,7 @@ Enable the "Only hide in Streamer Mode" option to:
 ## FAQ
 
 **❓: Do hidden servers still show notifications?**
-- No, hidden servers won't display unread messages, mention counts or play notifications sounds.  
+- No, hidden servers won't display unread messages, mention counts or play notifications sounds.
 (Only when **Suppresion Mode** is set to <ins>Silent</ins> & (Preferably) **Auto Clear Mentions** is <ins>enabled</ins>)
 
 **❓: Can I still access hidden servers?**
@@ -68,7 +68,7 @@ Enable the "Only hide in Streamer Mode" option to:
 - No, people from any hidden server can still interact with you and vise versa. The "icons" Discord displays in the server listing are only hidden with Custom CSS injection.
 
 **❓ : Will people know I'm using CleanCord?**
-- No, this is purely a visual change on your client. Moreover, there is a setting to completely hide CleanCord's right-click options!   
+- No, this is purely a visual change on your client. Moreover, there is a setting to completely hide CleanCord's right-click options!
 (Same goes whilst streaming, by enabling the option, CleanCord will silently hide your hidden elements the moment **Streamer Mode** is on)
 
 **❓: Will my hidden elements stay hidden after restarting Discord?**
@@ -84,6 +84,9 @@ Enable the "Only hide in Streamer Mode" option to:
   <tr>
     <td width="50%"><img src="https://github.com/user-attachments/assets/a5f9083f-ae9f-4715-b151-e52f1d8a6441" alt="Streamer mode example" style="width:100%"></td>
     <td width="50%"><img src="https://github.com/user-attachments/assets/a6b29511-285c-4972-a574-5968f66fb7ef" alt="Streamer mode example 2" style="width:100%"></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="https://github.com/user-attachments/assets/a022d38f-3a93-4482-abbe-93392abebfb2" alt="Hidden elements showcase" style="width:100%"></td>
   </tr>
 </table>
 

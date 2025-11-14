@@ -21,7 +21,72 @@ interface HiddenItemsListProps {
     onlyHideInStreamEnabled: boolean;
 }
 
+interface ItemInfo {
+    id: string;
+    name: string;
+    expanded?: boolean;
+    allServerNames?: string[];
+}
+
 export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInStreamEnabled }: HiddenItemsListProps) {
+    const [itemsInfo, setItemsInfo] = React.useState<ItemInfo[]>([]);
+    const stores = DiscordStores.getInstance();
+
+    React.useEffect(() => {
+        const loadItemsInfo = async () => {
+            const itemsWithInfo: ItemInfo[] = [];
+
+            for (const id of items) {
+                try {
+                    let name = "Unknown";
+                    let allServerNames: string[] = [];
+
+                    if (type === "server") {
+                        const guild = stores.getGuild(id);
+                        name = guild?.name || `Server ${id}`;
+                    } else {
+                        const guildFolders = stores.getGuildFolders();
+                        const folder = guildFolders.find((f: any) =>
+                            f.folderId === id || f.id === id
+                        );
+
+                        allServerNames = folder?.guildIds?.map((guildId: string) => {
+                            const guild = stores.getGuild(guildId);
+                            return guild?.name || guildId;
+                        }) || [];
+
+                        const displayNames = allServerNames.slice(0, 3);
+                        name = displayNames.length > 0
+                            ? `Folder (${displayNames.join(", ")}${displayNames.length < allServerNames.length ? "..." : ""})`
+                            : `Folder ${id}`;
+                    }
+
+                    itemsWithInfo.push({
+                        id,
+                        name,
+                        expanded: false,
+                        allServerNames: allServerNames.length > 0 ? allServerNames : undefined
+                    });
+                } catch (error) {
+                    console.warn(`Failed to get name for ${type} ${id}:`, error);
+                    itemsWithInfo.push({ id, name: `Unknown ${type}` });
+                }
+            }
+
+            setItemsInfo(itemsWithInfo);
+        };
+
+        loadItemsInfo();
+    }, [items, type]);
+
+    const toggleExpand = (itemId: string) => {
+        setItemsInfo(prev => prev.map(item =>
+            item.id === itemId
+                ? { ...item, expanded: !item.expanded }
+                : item
+        ));
+    };
+
     const isStreamMode = React.useMemo(() => {
         try {
             const stores = DiscordStores.getInstance();
@@ -65,6 +130,15 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
         fontWeight: "600"
     }), [isStreamMode]);
 
+    const expandButtonStyle = React.useMemo(() => ({
+        background: "none",
+        border: "none",
+        color: "var(--white-500)",
+        cursor: "pointer",
+        fontSize: "16px",
+        fontWeight: "600"
+    }), []);
+
     return React.createElement("div", { style: containerStyle }, [
         React.createElement("div", { key: "header", style: headerStyle }, [
             React.createElement("h3", {
@@ -87,9 +161,8 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
         ),
 
         React.createElement("div", {
-            key: "item-list",
-            style: { maxHeight: "300px", overflowY: "auto" }
-        }, items.length === 0
+            key: "item-list"
+        }, itemsInfo.length === 0
             ? React.createElement("div", {
                 style: {
                     textAlign: "center",
@@ -97,9 +170,9 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
                     padding: "16px"
                 }
             }, `No hidden ${type === "server" ? "servers" : "folders"}.`)
-            : items.map(id =>
+            : itemsInfo.map(itemInfo =>
                 React.createElement("div", {
-                    key: id,
+                    key: itemInfo.id,
                     style: {
                         padding : "8px",
                         display: "flex",
@@ -108,10 +181,73 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
                         opacity: onlyHideInStreamEnabled && !isStreamMode ? 0.5 : 1
                     }
                 }, [
-                    React.createElement("span", {
-                        key: "id",
-                        style: { color: "var(--text-danger)" }
-                    }, `${type === "server" ? "Server" : "Folder"} ID: ${id}`),
+                    React.createElement("div", {
+                        key: "info",
+                        style: {
+                            display: "flex",
+                            flexDirection: "column",
+                            flex: 1,
+                            marginRight: "12px"
+                        }
+                    }, [
+                        React.createElement("div", {
+                            key: "name-row",
+                            style: {
+                                display: "flex",
+                                alignItems: "center",
+                                marginBottom: "2px"
+                            }
+                        }, [
+                            React.createElement("span", {
+                                key: "name",
+                                style: {
+                                    color: "var(--header-primary)",
+                                    fontSize: "14px",
+                                    fontWeight: "500"
+                                }
+                            }, itemInfo.name),
+                            itemInfo.allServerNames && itemInfo.allServerNames.length > 3 && React.createElement("button", {
+                                key: "expand-button",
+                                onClick: () => toggleExpand(itemInfo.id),
+                                style: expandButtonStyle,
+                            }, itemInfo.expanded ? "▲" : "▼")
+                        ]),
+                        React.createElement("span", {
+                            key: "id",
+                            style: {
+                                color: "var(--text-muted)",
+                                fontSize: "12px",
+                            }
+                        }, `ID: ${itemInfo.id}`),
+                        itemInfo.expanded && itemInfo.allServerNames && React.createElement("div", {
+                            key: "expanded-list",
+                            style: {
+                                marginTop: "4px",
+                                padding: "4px",
+                                backgroundColor: "var(--background-modifier-hover)",
+                                borderRadius: "4px",
+                                fontSize: "12px"
+                            }
+                        }, [
+                            React.createElement("div", {
+                                key: "all-servers-title",
+                                style: {
+                                    fontWeight: "600",
+                                    marginBottom: "2px",
+                                    color: "var(--text-muted)"
+                                }
+                            }, `All servers (${itemInfo.allServerNames.length}):`),
+                            ...itemInfo.allServerNames.map((serverName, index) =>
+                                React.createElement("div", {
+                                    key: `server-${index}`,
+                                    style: {
+                                        padding: "1px 0",
+                                        color: "var(--text-muted)"
+                                    }
+                                }, `• ${serverName}`)
+                            )
+                        ])
+                    ]),
                     React.createElement("label", {
                         key: "toggle-wrapper",
                         style: {
@@ -123,13 +259,13 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
                     }, [
                         React.createElement("span", {
                             key: "toggle-label",
-                            style: { color: "var(--text-muted)", fontSize: "16px" }
+                            style: { color: "var(--text-muted)", fontSize: "14px" }
                         }, "Hidden"),
                         React.createElement("input", {
                             key: "toggle-input",
                             type: "checkbox",
                             checked: true,
-                            onChange: () => onToggle(id),
+                            onChange: () => onToggle(itemInfo.id),
                             style: { cursor: "pointer" }
                         })
                     ])
