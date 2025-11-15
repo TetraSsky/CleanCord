@@ -36,13 +36,13 @@ let originalQuickSwitcherChannelFunction: any = null;
 const settings = definePluginSettings({
     // CleanCord : Options CATEGORY
     showOptions: {
-        description: "Displays the options upon right-clicking a server/folder",
+        description: "Display the options upon right-clicking a server/folder",
         type: OptionType.BOOLEAN,
         default: true,
     },
 
     onlyHideInStream: {
-        description: "Only hide selected servers while in Streamer Mode",
+        description: "Only hide servers/folders when in Streamer Mode",
         type: OptionType.BOOLEAN,
         default: false,
         onChange: (newValue: boolean) => {
@@ -55,7 +55,7 @@ const settings = definePluginSettings({
     },
 
     hideInQuickSwitcher: {
-        description: "Also hide servers from the quick switcher (Ctrl+K)",
+        description: "Hide servers/folders in the Quick Switcher shortcut (Ctrl+K)",
         type: OptionType.BOOLEAN,
         default: true,
         onChange: (newValue: boolean) => {
@@ -75,8 +75,10 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         options: [
             { label: "Default - Keep initial Discord behaviour for notifications", value: "off" },
-            { label: "Silent - Block all notifications in real-time from hidden servers/folders (Resets on startup)", value: "on" },
-        ], default: "on", restartNeeded: true,
+            { label: "Silent - Suppress all notifications coming from hidden servers/folders (Resets on startup)", value: "on" },
+        ],
+        default: "on",
+        restartNeeded: true,
     },
 
     autoClearMentions: {
@@ -95,7 +97,6 @@ const settings = definePluginSettings({
 
     // CleanCord : Servers CATEGORY
     hiddenServers: {
-        description: "Manage hidden servers (toggle to show/hide)",
         type: OptionType.COMPONENT,
         component: () => {
             const [hiddenServers, setHiddenServers] = React.useState<string[]>([]);
@@ -127,14 +128,14 @@ const settings = definePluginSettings({
                 items: hiddenServers,
                 onToggle: toggle,
                 onClearAll: clearAll,
-                onlyHideInStreamEnabled: settings.store.onlyHideInStream
+                onlyHideInStreamEnabled: settings.store.onlyHideInStream,
+                description: "Manage hidden servers (Individually or with 'Unhide All')"
             });
         }
     },
 
     // CleanCord : Folders CATEGORY
     hiddenFolders: {
-        description: "Manage hidden folders (toggle to show/hide)",
         type: OptionType.COMPONENT,
         component: () => {
             const [hiddenFolders, setHiddenFolders] = React.useState<string[]>([]);
@@ -166,7 +167,8 @@ const settings = definePluginSettings({
                 items: hiddenFolders,
                 onToggle: toggle,
                 onClearAll: clearAll,
-                onlyHideInStreamEnabled: settings.store.onlyHideInStream
+                onlyHideInStreamEnabled: settings.store.onlyHideInStream,
+                description: "Manage hidden folders (Individually or with 'Unhide All')"
             });
         }
     }
@@ -420,11 +422,11 @@ function shouldSuppressMessage(action: any): { suppress: boolean; modifiedAction
 
                 const currentUserId = stores.getCurrentUserId();
                 const guildMuted = stores.isGuildMuted(message.guild_id);
-                
+
                 const hasUserMentions = message.mentions?.length > 0 && currentUserId && message.mentions.some(m => m.id === currentUserId);
                 const hasRoleMentions = message.mention_roles?.length > 0 && stores.hasMentionedRole(message.guild_id, message.mention_roles, currentUserId);
                 const hasEveryoneMention = message.mention_everyone;
-                
+
                 const hasMentions = hasUserMentions || hasRoleMentions || hasEveryoneMention;
 
                 if ((guildMuted && hasMentions) || !guildMuted) {
@@ -785,7 +787,7 @@ function updateCSSClasses() {
 // =============
 export default definePlugin({
     name: "CleanCord",
-    description: "Allows you to hide certain servers/folders in your server list with right-click option and manage mentions handling with various settings",
+    description: "Allows you to hide specific servers and folders from your Discord server list with various settings",
     authors: [{ name: "Tetra_Sky", id: 406453997294190594n }],
     settings,
 

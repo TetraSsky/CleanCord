@@ -19,6 +19,7 @@ interface HiddenItemsListProps {
     onToggle: (id: string) => void;
     onClearAll: () => void;
     onlyHideInStreamEnabled: boolean;
+    description: string;
 }
 
 interface ItemInfo {
@@ -28,7 +29,7 @@ interface ItemInfo {
     allServerNames?: string[];
 }
 
-export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInStreamEnabled }: HiddenItemsListProps) {
+export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInStreamEnabled, description }: HiddenItemsListProps) {
     const [itemsInfo, setItemsInfo] = React.useState<ItemInfo[]>([]);
     const stores = DiscordStores.getInstance();
 
@@ -101,13 +102,27 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
         backgroundColor: "var(--background-secondary)",
     }), []);
 
+    const containerStyle2 = React.useMemo(() => ({
+        display: "flex",
+        backgroundColor: "var(--background-secondary)",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: "8px"
+    }), []);
+
+    const descriptionStyle = React.useMemo(() => ({
+        display: "flex",
+        flexDirection: "column",
+        marginBottom: "8px"
+    }), []);
+
     const headerStyle = React.useMemo(() => ({
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        marginBottom: "10px",
         fontSize: "16px",
-        fontWeight: "600"
+        marginBottom: "8px"
     }), []);
 
     const buttonStyle = React.useMemo(() => ({
@@ -117,47 +132,59 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
         borderRadius: "4px",
         cursor: "pointer",
         fontSize: "16px",
-        fontWeight: "600"
+        fontWeight: "500"
     }), []);
 
     const statusStyle = React.useMemo(() => ({
         padding: "8px",
         backgroundColor: isStreamMode ? "var(--status-positive)" : "var(--status-warning)",
         borderRadius: "4px",
-        color: "var(--white-500)",
-        textAlign: "center" as const,
+        color: "white",
+        textAlign: "center",
         fontSize: "16px",
-        fontWeight: "600"
+        fontWeight: "500",
     }), [isStreamMode]);
 
     const expandButtonStyle = React.useMemo(() => ({
         background: "none",
         border: "none",
-        color: "var(--white-500)",
+        color: "white",
         cursor: "pointer",
-        fontSize: "16px",
-        fontWeight: "600"
+        fontSize: "14px"
     }), []);
 
     return React.createElement("div", { style: containerStyle }, [
-        React.createElement("div", { key: "header", style: headerStyle }, [
-            React.createElement("h3", {
-                key: "title",
-                style: { color: "var(--header-primary)", fontSize: "16px", fontWeight: "600" }
-            }, `Hidden ${type === "server" ? "Servers" : "Folders"}`),
+        React.createElement("div", { style: containerStyle2 }, [
+            React.createElement("div", { style: descriptionStyle }, [
+                React.createElement("div", { key: "header", style: headerStyle }, [
+                    React.createElement("h3", {
+                        key: "title",
+                        style: { color: "var(--header-primary)", fontSize: "16px", fontWeight: "500" }
+                    }, `Hidden ${type === "server" ? "Servers" : "Folders"}`)
+                ]),
+
+                React.createElement("div", {
+                    key: "description",
+                    style: {
+                        fontSize: "14px",
+                        color: "var(--header-secondary)"
+                    }
+                }, description),
+            ]),
+
             React.createElement("button", {
                 key: "clear-button",
                 onClick: onClearAll,
                 style: buttonStyle
-            }, "Unhide All")
+            }, "Unhide All"),
         ]),
 
         onlyHideInStreamEnabled && React.createElement("div", {
             key: "stream-status",
             style: statusStyle
         }, isStreamMode
-            ? `🔴 Streamer Mode ON - ${type === "server" ? "Servers" : "Folders"} are hidden`
-            : `⚠️ Streamer Mode OFF - ${type === "server" ? "Servers" : "Folders"} are visible despite being in list`
+            ? `Streamer Mode ON - ${type === "server" ? "Servers" : "Folders"} are hidden`
+            : `Streamer Mode OFF - ${type === "server" ? "Servers" : "Folders"} are visible`
         ),
 
         React.createElement("div", {
@@ -203,7 +230,6 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
                                 style: {
                                     color: "var(--header-primary)",
                                     fontSize: "14px",
-                                    fontWeight: "500"
                                 }
                             }, itemInfo.name),
                             itemInfo.allServerNames && itemInfo.allServerNames.length > 3 && React.createElement("button", {
@@ -216,7 +242,7 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
                             key: "id",
                             style: {
                                 color: "var(--text-muted)",
-                                fontSize: "12px",
+                                fontSize: "14px",
                             }
                         }, `ID: ${itemInfo.id}`),
                         itemInfo.expanded && itemInfo.allServerNames && React.createElement("div", {
@@ -232,7 +258,7 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
                             React.createElement("div", {
                                 key: "all-servers-title",
                                 style: {
-                                    fontWeight: "600",
+                                    fontWeight: "500",
                                     marginBottom: "2px",
                                     color: "var(--text-muted)"
                                 }
