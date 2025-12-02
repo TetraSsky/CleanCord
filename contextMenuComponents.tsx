@@ -8,6 +8,7 @@
  * Also allows to display SVGs for visual indicator :) !
  */
 
+import { openPluginModal } from "@components/settings/tabs/plugins/PluginModal";
 import { Menu } from "@webpack/common";
 import { React } from "@webpack/common";
 
@@ -80,7 +81,7 @@ export function CleanCordContext(
                         label: "Manage CleanCord's Settings",
                         icon: SettingsIcon,
                         action: () => {
-                            Vencord.Webpack.Common.SettingsRouter.open("VencordPlugins"); //Opens the Vencord settings panel, need to find a way to redirect to CleanCord's settings (Not implemented yet)
+                            openPluginModal(Vencord.Plugins.plugins.CleanCord);
                         }
                     })
                 ])

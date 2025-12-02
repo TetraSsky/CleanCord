@@ -339,9 +339,13 @@ function unpatchQuickSwitcher() {
                 QuickSwitcherUtils.queryGuilds = originalQuickSwitcherGuildFunction;
                 originalQuickSwitcherGuildFunction = null;
             }
+            if (originalQuickSwitcherChannelFunction) {
+                QuickSwitcherUtils.queryChannels = originalQuickSwitcherChannelFunction;
+                originalQuickSwitcherChannelFunction = null;
+            }
         }
 
-        logger.info("Restored original Quick Switcher and RecentChannelsStore functions");
+        logger.info("Restored original Quick Switcher functions");
     } catch (error) {
         logger.error("Failed to unpatch Quick Switcher:", error);
     }
@@ -350,29 +354,6 @@ function unpatchQuickSwitcher() {
 // ===============================
 // MENTION SUPPRESSION FUNCTIONS =
 // ===============================
-const suppressionRateLimit = {
-    lastSuppression: 0,
-    suppressionCount: 0,
-    maxSuppressionsPerSecond: 10
-};
-
-function checkRateLimit(): boolean {
-    if (!settings.store.rateLimitedSuppression) return true;
-
-    const now = Date.now();
-    if (now - suppressionRateLimit.lastSuppression > 1000) {
-        suppressionRateLimit.suppressionCount = 0;
-        suppressionRateLimit.lastSuppression = now;
-    }
-
-    if (suppressionRateLimit.suppressionCount >= suppressionRateLimit.maxSuppressionsPerSecond) {
-        logger.warn("Rate limit reached. Allowing message through !");
-        return false;
-    }
-    suppressionRateLimit.suppressionCount++;
-    return true;
-}
-
 function getServersFromHiddenFolders(): string[] {
     return stores.getServersFromFolders(hiddenData.folders);
 }
@@ -398,7 +379,6 @@ function shouldSuppressMessage(action: any): { suppress: boolean; modifiedAction
     if (!(settings.store.onlyHideInStream && !stores.isStreamingMode())) {
 
         if (!action || typeof action !== 'object') return { suppress: false };
-        if (!checkRateLimit()) return { suppress: false };
 
         const message = action.message || action;
 
@@ -776,6 +756,9 @@ function updateCSSClasses() {
             });
         } catch (error) {
             // Silently fail - Keep the UI (even broken) as is
+            if (settings.store.debugMode) {
+                logger.error("Failure for CSS adjustments:", error);
+            }
         }
     });
 
