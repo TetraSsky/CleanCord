@@ -167,7 +167,7 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
                     key: "description",
                     style: {
                         fontSize: "14px",
-                        color: "var(--header-secondary)"
+                        color: "var(--text-default)"
                     }
                 }, description),
             ]),
