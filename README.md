@@ -5,11 +5,11 @@
 CleanCord is a Vencord plugin that allows you to hide specific servers and folders from your Discord server list, for various use cases 🔎 !
 
 ## Features
-
 - Hide individual servers with a right-click
 - Hide entire folders with a right-click
 - Option to only hide servers when in Streamer Mode
 - Option to also hide servers when using Quick-Switcher (CTRL+K)
+- Option to Manage Discord behaviour for incoming mentions from hidden servers/folders (Both in real-time & on startup)
 - Manage hidden servers/folders through Vencord plugin settings
 
 ## Installation
@@ -30,7 +30,7 @@ CleanCord is a Vencord plugin that allows you to hide specific servers and folde
 3. The server/folder will immediately disappear from your view
 
 ### Managing Hidden Items
-1. Go to Vencord Settings > Plugins > CleanCord
+1. Go to Vencord Settings > Plugins > CleanCord (Or right-click --> "Manage CleanCord's settings")
 2. You'll see two sections:
    - **Hidden Servers**: Lists all currently hidden servers
    - **Hidden Folders**: Lists all currently hidden folders
@@ -44,16 +44,15 @@ Enable the "Only hide in Streamer Mode" option to:
 - Automatically handle notifications & mentions when Streamer Mode is active
 
 ## Options
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| Show Options | Displays the hide/unhide options in right-click menus | Enabled |
-| Only Hide in Streamer Mode | Servers/folders will only be hidden when Streamer Mode is active | Disabled |
-| Hide In Quick Switcher | Also hide servers from the quick switcher (Ctrl+K) | Disabled |
-| Suppression Mode | Default - Keep initial Discord behaviour for notifications / Silent - Block all notifications in real-time from hidden servers/folders (Resets on startup) | Silent |
-| Auto Clear Mentions | Automatically clear all unread badges from hidden servers/folders on startup (Recommended to use with Suppression Mode set to 'Silent') | Disabled |
-| Hidden Servers | Manage your list of hidden servers | - |
-| Hidden Folders | Manage your list of hidden folders | - |
+| Option | Description | Default | Clearing Type |
+|--------|-------------|---------|------|
+| Show Options | Displays the hide/unhide options in right-click menus | Enabled | - |
+| Only Hide in Streamer Mode | Servers/folders will only be hidden when Streamer Mode is active | Disabled | - |
+| Hide In Quick Switcher | Also hide servers from the quick switcher (Ctrl+K) | Disabled | - |
+| Suppression Mode | Default - Keep initial Discord behaviour for notifications / Silent - Block all notifications in real-time from hidden servers/folders (Resets on startup) | Silent | Clears in Real-Time |
+| Auto Clear Mentions | Automatically clear all unread badges from hidden servers/folders on startup (Recommended to use with Suppression Mode set to 'Silent') | Disabled | Clears on Startup |
+| Hidden Servers | Manage your list of hidden servers | - | - |
+| Hidden Folders | Manage your list of hidden folders | - | - |
 
 ## FAQ
 
@@ -75,7 +74,6 @@ Enable the "Only hide in Streamer Mode" option to:
 - Yes, your preferences are saved between sessions thanks to Vencord!
 
 ## Screenshots
-
 <table>
   <tr>
     <td width="50%"><img src="https://github.com/user-attachments/assets/b731f5f3-1d9b-4920-b769-633f0205efc0" alt="Context menu" style="width:100%"></td>
@@ -91,16 +89,13 @@ Enable the "Only hide in Streamer Mode" option to:
 </table>
 
 ## Support
-
 If you encounter any issues or have feature requests (This will entirely depend of my free time. Be aware.):
 [Open an issue](https://github.com/yourusername/CleanCord/issues)
 
 ## Credits
-
 This plugin is built for and requires [Vencord](https://github.com/Vendicated/Vencord), a Discord client mod! Big thanks to them ❤️❤️❤️!
 
 ## Star History
-
 [![Star History Chart](https://api.star-history.com/svg?repos=TetraSsky/CleanCord&type=Date)](https://www.star-history.com/#TetraSsky/CleanCord&Date)
 
 ## License
