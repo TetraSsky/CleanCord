@@ -127,7 +127,7 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
 
     const buttonStyle = React.useMemo(() => ({
         padding: "4px 8px",
-        backgroundColor: "var(--button-danger-background)",
+        backgroundColor: "var(--button-danger-background-disabled)",
         color: "white",
         borderRadius: "4px",
         cursor: "pointer",
@@ -159,13 +159,14 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
                 React.createElement("div", { key: "header", style: headerStyle }, [
                     React.createElement("h3", {
                         key: "title",
-                        style: { color: "var(--header-primary)", fontSize: "16px", fontWeight: "500" }
+                        style: { fontFamily: "var(--font-primary)", color: "var(--text-default)", fontSize: "16px", fontWeight: "500" }
                     }, `Hidden ${type === "server" ? "Servers" : "Folders"}`)
                 ]),
 
                 React.createElement("div", {
                     key: "description",
                     style: {
+                        fontFamily: "var(--font-primary)",
                         fontSize: "14px",
                         color: "var(--text-default)"
                     }
@@ -192,6 +193,7 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
         }, itemsInfo.length === 0
             ? React.createElement("div", {
                 style: {
+                    fontFamily: "var(--font-primary)",
                     textAlign: "center",
                     color: "var(--text-muted)",
                     padding: "16px"
@@ -228,7 +230,8 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
                             React.createElement("span", {
                                 key: "name",
                                 style: {
-                                    color: "var(--header-primary)",
+                                    fontFamily: "var(--font-primary)",
+                                    color: "var(--text-default)",
                                     fontSize: "14px",
                                 }
                             }, itemInfo.name),
@@ -241,6 +244,7 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
                         React.createElement("span", {
                             key: "id",
                             style: {
+                                fontFamily: "var(--font-primary)",
                                 color: "var(--text-muted)",
                                 fontSize: "14px",
                             }
@@ -250,7 +254,7 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
                             style: {
                                 marginTop: "4px",
                                 padding: "4px",
-                                backgroundColor: "var(--background-modifier-hover)",
+                                backgroundColor: "var(--background-mod-normal)",
                                 borderRadius: "4px",
                                 fontSize: "12px"
                             }
@@ -260,7 +264,8 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
                                 style: {
                                     fontWeight: "500",
                                     marginBottom: "2px",
-                                    color: "var(--text-muted)"
+                                    color: "var(--text-muted)",
+                                    fontFamily: "var(--font-primary)"
                                 }
                             }, `All servers (${itemInfo.allServerNames.length}):`),
                             ...itemInfo.allServerNames.map((serverName, index) =>
@@ -268,7 +273,8 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
                                     key: `server-${index}`,
                                     style: {
                                         padding: "1px 0",
-                                        color: "var(--text-muted)"
+                                        color: "var(--text-muted)",
+                                        fontFamily: "var(--font-primary)"
                                     }
                                 }, `• ${serverName}`)
                             )
@@ -285,7 +291,7 @@ export function HiddenItemsList({ type, items, onToggle, onClearAll, onlyHideInS
                     }, [
                         React.createElement("span", {
                             key: "toggle-label",
-                            style: { color: "var(--text-muted)", fontSize: "14px" }
+                            style: { color: "var(--text-muted)", fontSize: "14px", fontFamily: "var(--font-primary)" }
                         }, "Hidden"),
                         React.createElement("input", {
                             key: "toggle-input",
