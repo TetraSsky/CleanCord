@@ -88,12 +88,12 @@ const settings = definePluginSettings({
         restartNeeded: true
     },
 
-    // CleanCord : DEBUG CATEGORY | Commented out by default
-    debugMode: {
-        description: "Cool dev menu option B)",
-        type: OptionType.BOOLEAN,
-        default: false,
-    },
+    // // CleanCord : DEBUG CATEGORY | Commented out by default
+    // debugMode: {
+    //     description: "Cool dev menu option B)",
+    //     type: OptionType.BOOLEAN,
+    //     default: false,
+    // },
 
     // CleanCord : Servers CATEGORY
     hiddenServers: {
