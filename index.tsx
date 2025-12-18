@@ -89,11 +89,11 @@ const settings = definePluginSettings({
     },
 
     // CleanCord : DEBUG CATEGORY | Commented out by default
-    // debugMode: {
-    //     description: "Cool dev menu option B)",
-    //     type: OptionType.BOOLEAN,
-    //     default: false,
-    // },
+    debugMode: {
+        description: "Cool dev menu option B)",
+        type: OptionType.BOOLEAN,
+        default: false,
+    },
 
     // CleanCord : Servers CATEGORY
     hiddenServers: {
@@ -714,6 +714,7 @@ function updateCSSClasses() {
     hiddenData.servers.forEach(serverId => {
         cssRules.push(
             `html[data-clean-cord-enabled="true"] .listItem__650eb:has([data-list-item-id="guildsnav___${serverId}"]) { display: none !important; }`,
+            `html[data-clean-cord-enabled="true"] [class*="-listItem"]:has([data-list-item-id="guildsnav___${serverId}"]) { display: none !important; }`,
             `html[data-clean-cord-enabled="true"] [data-list-item-id="guildsnav___${serverId}"] { display: none !important; }`,
             `html[data-clean-cord-enabled="true"] .folderPreviewGuildIcon__48112[style*="${serverId}"] { display: none !important; }`,
             `html[data-clean-cord-enabled="true"] .folderPreviewGuildIcon__48112[style*="icons/${serverId}/"] { display: none !important; }`
@@ -723,8 +724,10 @@ function updateCSSClasses() {
     hiddenData.folders.forEach(folderId => {
         cssRules.push(
             `html[data-clean-cord-enabled="true"] .listItem__650eb:has([data-list-item-id*="${folderId}"]) { display: none !important; }`,
+            `html[data-clean-cord-enabled="true"] [class*="-listItem"]:has([data-list-item-id*="${folderId}"]) { display: none !important; }`,
             `html[data-clean-cord-enabled="true"] [data-list-item-id*="${folderId}"] { display: none !important; }`,
-            `html[data-clean-cord-enabled="true"] .folderGroup__48112:has([data-list-item-id*="${folderId}"]) { display: none !important; }`
+            `html[data-clean-cord-enabled="true"] .folderGroup__48112:has([data-list-item-id*="${folderId}"]) { display: none !important; }`,
+            `html[data-clean-cord-enabled="true"] [class*="-folderGroup"]:has([data-list-item-id*="${folderId}"]) { display: none !important; }`
         );
 
         try {
@@ -746,7 +749,8 @@ function updateCSSClasses() {
 
                     if (folderHeight > 0) {
                         cssRules.push(
-                            `html[data-clean-cord-enabled="true"] .folderGroup__48112.isExpanded__48112:has([data-list-item-id*="${folderId}"]) { height: calc((${folderHeight} * var(--guildbar-folder-size)) + var(--guildbar-folder-size)) !important; }`
+                            `html[data-clean-cord-enabled="true"] .folderGroup__48112.isExpanded__48112:has([data-list-item-id*="${folderId}"]) { height: calc((${folderHeight} * var(--guildbar-folder-size)) + var(--guildbar-folder-size)) !important; }`,
+                            `html[data-clean-cord-enabled="true"] [class*="-folderGroup"][class*="-isExpanded"]:has([data-list-item-id*="${folderId}"]) { height: calc((${folderHeight} * var(--guildbar-folder-size)) + var(--guildbar-folder-size)) !important; }`
                             // We now use "--guildbar-folder-size" already defined in the :root of Discord
                             // In the case they change the servers icons' size within folders, now this value won't be hard-coded in the calculations
                             // + --guildbar-folder-size to account for the server we're hiding
