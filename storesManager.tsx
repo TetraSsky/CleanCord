@@ -30,19 +30,15 @@ export class DiscordStores {
     public GuildMemberStore: any = null;
 
     private constructor() {
-        // Stores are initialized lazily when first accessed
+        // Lazily initialization
     }
 
-    /**
-     * Initialize all Discord stores using Vencord's Webpack utilities
-     */
     private initializeStores(): void {
         if (this._initialized || typeof Vencord === 'undefined') return;
 
         try {
             logger.info("Initializing Discord stores...");
 
-            // Initialize all required stores
             this.SortedGuildStore = Vencord.Webpack.findStore("SortedGuildStore");
             this.GuildStore = Vencord.Webpack.findStore("GuildStore") || Vencord.Webpack.findByProps("getGuild", "getGuilds");
             this.ChannelStore = Vencord.Webpack.findStore("ChannelStore") || Vencord.Webpack.findByProps("getChannel", "getChannels");
@@ -75,10 +71,6 @@ export class DiscordStores {
         }
     }
 
-    /**
-     * Get the singleton instance of DiscordStores
-     * Automatically initializes stores on first access
-     */
     public static getInstance(): DiscordStores {
         if (!DiscordStores._instance) {
             DiscordStores._instance = new DiscordStores();
@@ -87,52 +79,30 @@ export class DiscordStores {
         return DiscordStores._instance;
     }
 
-    /**
-     * Force re-initialization of stores (For Discord updates)
-     */
     public reinitialize(): void {
         this._initialized = false;
         this.initializeStores();
     }
 
-    /**
-     * Check if stores have been successfully initialized
-     */
     public get isInitialized(): boolean {
         return this._initialized;
     }
 
-    // ===============================
-    // CONVENIENCE HELPER METHODS    =
-    // ===============================
-
-    /**
-     * Get the current user's ID
-     */
     public getCurrentUserId(): string | null {
         this.initializeStores();
         return this.UserStore?.getCurrentUser()?.id || null;
     }
 
-    /**
-     * Get the currently selected guild ID
-     */
     public getCurrentGuildId(): string | null {
         this.initializeStores();
         return this.SelectedGuildStore?.getGuildId() || null;
     }
 
-    /**
-     * Get all guild folders
-     */
     public getGuildFolders(): any[] {
         this.initializeStores();
         return this.SortedGuildStore?.getGuildFolders?.() || [];
     }
 
-    /**
-     * Check if a guild is muted
-     */
     public isGuildMuted(guildId: string): boolean {
         this.initializeStores();
 
@@ -152,9 +122,6 @@ export class DiscordStores {
         }
     }
 
-    /**
-     * Get all channels for a specific guild
-     */
     public getGuildChannels(guildId: string): any[] {
         this.initializeStores();
 
@@ -174,9 +141,6 @@ export class DiscordStores {
         return [];
     }
 
-    /**
-     * Check if Discord is currently in streaming mode
-     */
     public isStreamingMode(): boolean {
         this.initializeStores();
 
@@ -188,41 +152,26 @@ export class DiscordStores {
         }
     }
 
-    /**
-     * Get a guild by ID
-     */
     public getGuild(guildId: string): any {
         this.initializeStores();
         return this.GuildStore?.getGuild?.(guildId) || null;
     }
 
-    /**
-     * Get mention count for a channel
-     */
     public getMentionCount(channelId: string): number {
         this.initializeStores();
         return this.ReadStateStore?.getMentionCount?.(channelId) || 0;
     }
 
-    /**
-     * Check if a channel has unread messages
-     */
     public hasUnread(channelId: string): boolean {
         this.initializeStores();
         return this.ReadStateStore?.hasUnread?.(channelId) || false;
     }
 
-    /**
-     * Get the last message ID for a channel
-     */
     public getLastMessageId(channelId: string): string | null {
         this.initializeStores();
         return this.ReadStateStore?.lastMessageId?.(channelId) || null;
     }
 
-    /**
-     * Get servers that are inside hidden folders
-     */
     public getServersFromFolders(folderIds: string[]): string[] {
         const serversInFolders: string[] = [];
 
@@ -249,17 +198,11 @@ export class DiscordStores {
         return serversInFolders;
     }
 
-    /**
-     * Get Quick Switcher utilities for patching
-     */
     public getQuickSwitcherUtils(): any {
         this.initializeStores();
         return this.QuickSwitcherUtils;
     }
 
-    /**
-     * Get all user's roles from specific guild
-     */
     public getUserRoles(guildId: string, userId?: string): string[] {
         this.initializeStores();
 
@@ -283,9 +226,6 @@ export class DiscordStores {
         }
     }
 
-    /**
-     * Check if user has any of the mentioned roles within the "mention_roles" array
-     */
     public hasMentionedRole(guildId: string, mentionedRoles: string[], userId?: string): boolean {
         if (!guildId || !mentionedRoles || mentionedRoles.length === 0) return false;
 
@@ -298,14 +238,6 @@ export class DiscordStores {
         }
     }
 
-    // ===============================
-    // STORE ACCESS VALIDATION       =
-    // ===============================
-
-    /**
-     * Validate that all required stores are available
-     * Returns array of missing store names
-     */
     public validateStores(): string[] {
         this.initializeStores();
 
@@ -322,9 +254,6 @@ export class DiscordStores {
             .map(([name]) => name);
     }
 
-    /**
-     * Get diagnostic information about store initialization
-     */
     public getDiagnostics() {
         return {
             initialized: this._initialized,

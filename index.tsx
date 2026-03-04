@@ -22,19 +22,11 @@ interface HiddenData {
 const logger = new Logger("CleanCord");
 let hiddenData: HiddenData = { servers: [], folders: [] };
 let originalDispatch: any = null;
-
-// Initialize stores instance - When plugin starts
 let stores: DiscordStores;
-
-// Quick Switcher patches
 let originalQuickSwitcherGuildFunction: any = null;
 let originalQuickSwitcherChannelFunction: any = null;
 
-// ===============================
-// PLUGIN SETTINGS CONFIGURATION =
-// ===============================
 const settings = definePluginSettings({
-    // CleanCord : Options CATEGORY
     showOptions: {
         description: "Display the options upon right-clicking a server/folder",
         type: OptionType.BOOLEAN,
@@ -88,14 +80,12 @@ const settings = definePluginSettings({
         restartNeeded: true
     },
 
-    // // CleanCord : DEBUG CATEGORY | Commented out by default
     // debugMode: {
     //     description: "Cool dev menu option B)",
     //     type: OptionType.BOOLEAN,
     //     default: false,
     // },
 
-    // CleanCord : Servers CATEGORY
     hiddenServers: {
         type: OptionType.COMPONENT,
         component: () => {
@@ -134,7 +124,6 @@ const settings = definePluginSettings({
         }
     },
 
-    // CleanCord : Folders CATEGORY
     hiddenFolders: {
         type: OptionType.COMPONENT,
         component: () => {
@@ -174,9 +163,6 @@ const settings = definePluginSettings({
     }
 });
 
-// ===========================
-// DATA MANAGEMENT FUNCTIONS =
-// ===========================
 function loadHiddenData() {
     try {
         const storedServers = settings.store.hiddenServers;
@@ -201,9 +187,6 @@ function saveHiddenData() {
     }
 }
 
-// =================================
-// VISIBILITY MANAGEMENT FUNCTIONS =
-// =================================
 function toggleServer(serverId: string) {
     if (!serverId) return;
 
@@ -238,9 +221,6 @@ function toggleFolder(folderId: string) {
     updateCSSClasses();
 }
 
-// ================================
-// QUICK SWITCHER PATCH FUNCTIONS =
-// ================================
 function shouldHideInQuickSwitcher(): boolean {
     if (!settings.store.hideInQuickSwitcher) return false;
 
@@ -271,7 +251,6 @@ function patchQuickSwitcher() {
             return;
         }
 
-        // Handle - Guild Search (Patch guild search function)
         if (QuickSwitcherUtils.queryGuilds && !originalQuickSwitcherGuildFunction) {
             originalQuickSwitcherGuildFunction = QuickSwitcherUtils.queryGuilds;
 
@@ -297,7 +276,6 @@ function patchQuickSwitcher() {
             };
         }
 
-        // Handle - Guild Search (Patch channel search function)
         if (QuickSwitcherUtils.queryChannels && !originalQuickSwitcherChannelFunction) {
             originalQuickSwitcherChannelFunction = QuickSwitcherUtils.queryChannels;
 
@@ -351,9 +329,6 @@ function unpatchQuickSwitcher() {
     }
 }
 
-// ===============================
-// MENTION SUPPRESSION FUNCTIONS =
-// ===============================
 function getServersFromHiddenFolders(): string[] {
     return stores.getServersFromFolders(hiddenData.folders);
 }
@@ -382,7 +357,7 @@ function shouldSuppressMessage(action: any): { suppress: boolean; modifiedAction
 
         const message = action.message || action;
 
-        // Handle - MESSAGE_CREATE (To Prevent : Unread badges, notification sounds and visual indicators)
+        // MESSAGE_CREATE (To Prevent : Unread badges, notification sounds and visual indicators)
         if (action.type === 'MESSAGE_CREATE') {
 
             if (settings.store.debugMode) {
@@ -431,9 +406,11 @@ function shouldSuppressMessage(action: any): { suppress: boolean; modifiedAction
                     const modifiedMessage = modifiedAction.message || modifiedAction;
 
                     // Silent Flag 4096 = "1 << 12" - SUPPRESS_NOTIFICATIONS
+                    // https://docs.discord.com/developers/resources/messages
                     modifiedMessage.flags = (modifiedMessage.flags || 0) | 1 << 12;
 
-                    // Mark the message as already read to prevent unread badges - We dispatch a MESSAGE_ACK after the message is processed
+                    // Mark the message as already read to prevent unread badges
+                    // We dispatch a MESSAGE_ACK after the message is processed
                     setTimeout(() => {
                         try {
                             FluxDispatcher.dispatch({
@@ -475,9 +452,6 @@ function shouldSuppressMessage(action: any): { suppress: boolean; modifiedAction
     return { suppress: false };
 }
 
-// ===================================
-// SELF-CLEARING ON RELOAD FUNCTIONS =
-// ===================================
 function clearHiddenMentions() {
     if (!settings.store.autoClearMentions) {
         return;
@@ -645,9 +619,6 @@ function clearHiddenMentions() {
     }
 }
 
-// ===========================
-// FLUX DISPATCHER FUNCTIONS =
-// ===========================
 function patchFluxDispatcher() {
     if (!FluxDispatcher || originalDispatch) return;
 
@@ -656,14 +627,12 @@ function patchFluxDispatcher() {
         FluxDispatcher.dispatch = function(action: any) {
             const suppressionResult = shouldSuppressMessage(action);
             if (suppressionResult.suppress) {
-                // Return a resolved Promise to maintain Discord's expected behavior (& Prevent crashes)
                 return Promise.resolve();
             }
 
             const actionToDispatch = suppressionResult.modifiedAction || action;
             const result = originalDispatch.call(this, actionToDispatch);
 
-            // We always need to ensure we return a Promise
             if (result && typeof result.then === 'function') {
                 return result;
             } else {
@@ -688,11 +657,8 @@ function unpatchFluxDispatcher() {
     }
 }
 
-// ==========================
-// CSS MANAGEMENT FUNCTIONS =
-// ==========================
-const CSS_ELEMENT_ID = 'clean-cord-dynamic-styles';
 
+const CSS_ELEMENT_ID = 'clean-cord-dynamic-styles';
 function updateCSSClasses() {
     const shouldHide = !settings.store.onlyHideInStream || stores.isStreamingMode();
     document.documentElement.setAttribute('data-clean-cord-enabled', shouldHide.toString());
@@ -744,7 +710,7 @@ function updateCSSClasses() {
 
                 if (hasHiddenServers) {
 
-                    // Only need to count servers that are NOT currently hidden
+                    // Count servers that are NOT currently hidden
                     const folderHeight = folder.guildIds.filter((guildId: string) => !hiddenData.servers.includes(guildId)).length;
 
                     if (folderHeight > 0) {
@@ -759,7 +725,6 @@ function updateCSSClasses() {
                 }
             });
         } catch (error) {
-            // Silently fail - Keep the UI (even broken) as is
             if (settings.store.debugMode) {
                 logger.error("Failure for CSS adjustments:", error);
             }
@@ -769,9 +734,6 @@ function updateCSSClasses() {
     styleElement.textContent = cssRules.join('\n');
 }
 
-// =============
-// MAIN PLUGIN =
-// =============
 export default definePlugin({
     name: "CleanCord",
     description: "Allows you to hide specific servers and folders from your Discord server list with various settings",
