@@ -38,6 +38,7 @@ You're now ready to use CleanCord (be sure to enable it in Vencord's plugin sett
 
 ## Installation (Web Version)
 **⚠️ Be sure to have completed all of the steps above ⚠️**
+
 *You can however exclude both last commands : `pnpm build` & `pnpm inject`, since they're not needed for the web version*
 
 *PS : If you have previously installed the official Vencord extension, you might want to disable/uninstall it to avoid conflicts*
